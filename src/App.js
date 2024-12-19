@@ -6,15 +6,18 @@ import { AuthProvider } from './context/AuthContext';
 import './styles/index.css';
 import { ThemeProvider } from 'styled-components';
 import theme from './styles/theme';
+import { GlobalProvider } from './context/GlobalContext';
 const App = () => {
   return (
-    <AuthProvider>
-      <ThemeProvider theme={theme}>
-        <Router>
-          <AppRoutes />
-        </Router>
-      </ThemeProvider>
-    </AuthProvider>
+    <GlobalProvider>
+      <AuthProvider>
+        <ThemeProvider theme={theme}>
+          <Router>
+            <AppRoutes />
+          </Router>
+        </ThemeProvider>
+      </AuthProvider>
+    </GlobalProvider>
   );
 };
 
