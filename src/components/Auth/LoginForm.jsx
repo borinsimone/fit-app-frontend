@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
 import Input from '../UI/Input';
 import Button from '../UI/Button';
@@ -30,6 +30,9 @@ const LoginForm = ({ onSubmit }) => {
         />
         <Button type='submit'>Login</Button>
       </form>
+      <div>
+        Non hai un account? <Link to='/register'>Registrati</Link>
+      </div>
     </Container>
   );
 };
@@ -39,13 +42,20 @@ const Container = styled.div`
   height: 100vh;
   height: 100dvh;
   width: 100vw;
-  display: grid;
-  place-items: center;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: 40px;
+  color: ${({ theme }) => theme.colors.text};
   form {
     width: 90%;
     max-width: 300px;
     display: flex;
     flex-direction: column;
     gap: 10px;
+  }
+  a {
+    color: ${({ theme }) => theme.colors.light};
   }
 `;
