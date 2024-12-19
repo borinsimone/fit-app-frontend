@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import styled from 'styled-components';
 import Input from '../UI/Input';
 import Button from '../UI/Button';
@@ -7,7 +7,7 @@ import Button from '../UI/Button';
 const LoginForm = ({ onSubmit }) => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const navigate = useNavigate();
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     onSubmit({ email, password });
