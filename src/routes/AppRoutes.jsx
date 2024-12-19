@@ -6,7 +6,7 @@ import RegisterPage from '../pages/RegisterPage';
 import DashboardPage from '../pages/DashboardPage';
 
 const AppRoutes = () => {
-  const { isAuthenticated } = useAuth();
+  const isAuthenticated = localStorage.getItem('token'); // Controlla se c'è un token
 
   return (
     <Routes>
