@@ -26,20 +26,6 @@ const RegisterPage = () => {
       [name]: value,
     }));
   };
-  const loginAfterRegistration = async (credentials) => {
-    try {
-      const response = await login(credentials);
-      console.log('Logged in:', response);
-
-      console.log('response ok');
-
-      localStorage.setItem('token', response.token);
-
-      navigate('/dashboard');
-    } catch (error) {
-      console.error('Login error:', error);
-    }
-  };
 
   // Gestisce l'invio del form
   const handleSubmit = async (e) => {
