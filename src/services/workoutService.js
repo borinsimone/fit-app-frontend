@@ -8,10 +8,13 @@ export const getWorkouts = async (token) => {
       },
     });
     if (response.ok) {
-      //   console.log(response);
+      const data = await response.json();
+
+      console.log(data);
+      return data;
 
       //   return await response.json();
-      const data = await response.json();
+      //   const data = await response.json();
 
       return data;
     } else {

@@ -11,20 +11,21 @@ function DashboardPage() {
   const { workouts, setWorkouts, user, setUser } = useGlobalContext();
   const navigate = useNavigate();
   // Fetch workouts on component mount and update workouts on token change or login/logout
+  const token = localStorage.getItem('token');
   useEffect(() => {
     const token = localStorage.getItem('token');
-    //   const fetchWorkouts = async () => {
-    //     if (!token) {
-    //       navigate('/login');
-    //       return;
-    //     }
-    //     console.log('start fetching');
+    const fetchWorkouts = async () => {
+      if (!token) {
+        navigate('/login');
+        return;
+      }
+      console.log('start fetching');
 
-    //     const workoutsData = await getWorkouts(token);
-    //     setWorkouts(workoutsData);
-    //   };
+      const workoutsData = await getWorkouts(token);
+      setWorkouts(workoutsData);
+    };
 
-    //   fetchWorkouts();
+    fetchWorkouts();
     try {
       const decodedToken = jwtDecode(token); // Decodifica il token
       setUser(decodedToken); // Salva i dati nel state
@@ -36,11 +37,24 @@ function DashboardPage() {
     <Container>
       <Navbar />
       <button
-        onClick={() => {
-          getWorkouts();
+        onClick={async () => {
+          // getWorkouts();
+          const response = await fetch('http://localhost:5001/workouts', {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          });
+
+          if (response.ok) {
+            const data = await response.json();
+            console.log(data);
+
+            // setWorkouts(data);
+            // console.log(workouts);
+          }
         }}
       >
-        getworkouts
+        shxashjxba
       </button>
       <WidgetContainer />
     </Container>
