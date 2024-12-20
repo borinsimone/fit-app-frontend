@@ -6,12 +6,14 @@ const GlobalContext = createContext();
 // Crea un provider per il contesto
 export const GlobalProvider = ({ children }) => {
   const [workouts, setWorkouts] = useState([]);
-
+  const [user, setUser] = useState();
   return (
     <GlobalContext.Provider
       value={{
         workouts,
         setWorkouts,
+        user,
+        setUser,
       }}
     >
       {children}

@@ -2,15 +2,16 @@ import React from 'react';
 import LoginForm from '../components/Auth/LoginForm';
 import { login } from '../services/authService';
 import { useNavigate } from 'react-router-dom';
+import { useGlobalContext } from '../context/GlobalContext';
+import { jwtDecode } from 'jwt-decode';
 
 const LoginPage = () => {
+  const { user, setUser } = useGlobalContext();
   const navigate = useNavigate();
   const handleLogin = async (credentials) => {
     try {
       const response = await login(credentials);
       console.log('Logged in:', response);
-
-      console.log('response ok');
 
       localStorage.setItem('token', response.token);
 

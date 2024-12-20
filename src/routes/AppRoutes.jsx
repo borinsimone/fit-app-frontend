@@ -4,6 +4,7 @@ import { useAuth } from '../context/AuthContext';
 import LoginPage from '../pages/LoginPage';
 import RegisterPage from '../pages/RegisterPage';
 import DashboardPage from '../pages/DashboardPage';
+import AgendaPage from '../pages/AgendaPage';
 
 const AppRoutes = () => {
   const isAuthenticated = localStorage.getItem('token'); // Controlla se c'è un token
@@ -31,6 +32,10 @@ const AppRoutes = () => {
       <Route
         path='/dashboard'
         element={isAuthenticated ? <DashboardPage /> : <Navigate to='/login' />}
+      />
+      <Route
+        path='/agenda'
+        element={isAuthenticated ? <AgendaPage /> : <Navigate to='/login' />}
       />
     </Routes>
   );
