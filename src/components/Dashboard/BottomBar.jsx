@@ -60,6 +60,9 @@ const IconWrapper = styled.div`
   justify-content: center;
   align-items: center;
   cursor: pointer;
+  transform: ${(props) => (props.active ? 'scale(1.3)' : 'scale(1)')};
+  transform-origin: bottom;
+  transition: transform 300ms;
   svg {
     & > * {
       user-select: none;
@@ -70,10 +73,8 @@ const IconWrapper = styled.div`
     path {
       color: ${(props) => (props.active ? `#00C6BE` : '#d9d9d950')};
       transition: color 400ms;
+      filter: ${(props) =>
+        props.active ? 'drop-shadow(0 0 10px 10px #00C6BE)' : 'none'};
     }
   }
-
-  /* &:hover svg {
-    color: ${(props) => (props.active ? 'darkgreen' : 'black')};
-  } */
 `;
