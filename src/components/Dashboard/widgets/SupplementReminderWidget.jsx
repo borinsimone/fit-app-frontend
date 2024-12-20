@@ -159,7 +159,7 @@ const Container = styled.div`
   display: flex;
   flex-direction: column;
   justify-content: flex-start;
-
+  width: 100%;
   h3 {
     margin-bottom: 10px;
     font-size: 1.2em;

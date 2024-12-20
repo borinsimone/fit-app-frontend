@@ -3,6 +3,7 @@ import styled from 'styled-components';
 import TodayWidget from './widgets/TodayWidget';
 import ChecklistWidget from './widgets/ChecklistWidget';
 import SupplementsReminderWidget from './widgets/SupplementReminderWidget';
+import AgendaWidget from './widgets/AgendaWidget';
 
 function WidgetContainer() {
   return (
@@ -10,6 +11,7 @@ function WidgetContainer() {
       <TodayWidget />
       <ChecklistWidget />
       <SupplementsReminderWidget />
+      <AgendaWidget />
     </Container>
   );
 }
@@ -17,10 +19,12 @@ function WidgetContainer() {
 export default WidgetContainer;
 const Container = styled.div`
   width: 100%;
+  height: 80%;
+  padding: 20px;
 
-  /* background-color: #ffffff10; */
   display: flex;
   flex-wrap: wrap;
   justify-content: center;
-  gap: 10px;
+  gap: 20px;
+  overflow: scroll;
 `;

@@ -85,7 +85,7 @@ function ChecklistWidget() {
           //       onClick={() => deleteItem(item.id)}
           //     />
           //   </ChecklistItem>
-          <ChecklistItem>
+          <ChecklistItem key={item.id}>
             <Checkbox
               checked={item.completed}
               onClick={() => toggleCheckbox(item.id)}
