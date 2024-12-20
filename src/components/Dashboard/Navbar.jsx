@@ -1,9 +1,11 @@
 import React from 'react';
 import { useGlobalContext } from '../../context/GlobalContext';
 import styled from 'styled-components';
+import { useNavigate } from 'react-router-dom';
 
 function Navbar() {
   const { user, setUser } = useGlobalContext();
+  const navigate = useNavigate();
   const getGreeting = () => {
     const hour = new Date().getHours();
 
@@ -21,7 +23,13 @@ function Navbar() {
         <div className='greeting'>{getGreeting()},</div>
         <div className='username'>{user?.name}</div>
       </div>
-      <Logo />
+      <Logo
+        onClick={() => {
+          setUser(null);
+          localStorage.removeItem('token');
+          navigate('/login');
+        }}
+      />
     </Container>
   );
 }
