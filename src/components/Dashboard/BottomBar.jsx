@@ -52,6 +52,9 @@ const Container = styled.div`
   display: flex;
   justify-content: space-around;
   /* background-color: #f8f8f8; */
+
+  background-color: ${({ theme }) => theme.colors.background};
+
   padding: 10px 0;
 `;
 
