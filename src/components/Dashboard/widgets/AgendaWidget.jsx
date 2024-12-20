@@ -70,12 +70,36 @@ const WorkoutCalendar = () => {
   };
 
   const calendarDays = generateCalendarDays();
+
+  const workoutDates = workouts.map((workout) => {
+    const date = new Date(workout.date); // workout.date è "2024-12-18T10:54:44.427Z"
+    return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(
+      2,
+      '0'
+    )}-${String(date.getDate()).padStart(2, '0')}`;
+  });
+  const hasWorkout = (year, month, day) => {
+    const formattedDate = `${year}-${String(month + 1).padStart(
+      2,
+      '0'
+    )}-${String(day).padStart(2, '0')}`;
+    return workoutDates.includes(formattedDate);
+  };
+  const getWorkoutsForDay = (year, month, day) => {
+    const formattedDate = `${year}-${String(month + 1).padStart(
+      2,
+      '0'
+    )}-${String(day).padStart(2, '0')}`;
+    return workouts.filter((workout) => {
+      const workoutDate = new Date(workout.date);
+      const workoutFormattedDate = `${workoutDate.getFullYear()}-${String(
+        workoutDate.getMonth() + 1
+      ).padStart(2, '0')}-${String(workoutDate.getDate()).padStart(2, '0')}`;
+      return workoutFormattedDate === formattedDate;
+    });
+  };
   return (
-    <Container
-      onClick={() => {
-        console.log(workouts);
-      }}
-    >
+    <Container onClick={() => {}}>
       <FaChevronLeft
         className='prev'
         onClick={() => changeMonth(-1)}
@@ -115,10 +139,21 @@ const WorkoutCalendar = () => {
                     : ''
                 }`}
                 onClick={() => {
-                  console.log(day, month + 1, year);
+                  const workoutsForDay = getWorkoutsForDay(year, month, day);
+                  if (workoutsForDay.length === 0) {
+                    console.log('ciao');
+                  } else {
+                    console.log(
+                      `Workouts for ${day}-${month + 1}-${year}:`,
+                      workoutsForDay
+                    );
+                  }
                 }}
               >
                 {day || ''}
+                {day && hasWorkout(year, month, day) && (
+                  <div className='workout-dot'></div>
+                )}
               </div>
             ))}
           </div>
@@ -206,8 +241,16 @@ const Container = styled.div`
     justify-content: center;
     height: 40px;
     font-weight: 100 !important;
+    position: relative;
   }
-
+  .workout-dot {
+    width: 6px;
+    height: 6px;
+    background-color: #00c6be;
+    border-radius: 50%;
+    position: absolute;
+    bottom: 5px;
+  }
   .calendar-day.today {
     /* background-color: yellow; */
     font-weight: bold;
