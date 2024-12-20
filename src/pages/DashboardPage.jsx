@@ -5,6 +5,7 @@ import { useGlobalContext } from '../context/GlobalContext';
 import styled from 'styled-components';
 import Navbar from '../components/Dashboard/Navbar';
 import { jwtDecode } from 'jwt-decode';
+import WidgetContainer from '../components/Dashboard/WidgetContainer';
 
 function DashboardPage() {
   const { workouts, setWorkouts, user, setUser } = useGlobalContext();
@@ -41,13 +42,15 @@ function DashboardPage() {
       >
         getworkouts
       </button>
+      <WidgetContainer />
     </Container>
   );
 }
 
 export default DashboardPage;
 const Container = styled.div`
-  height: 100%;
+  height: 100vh;
+  height: 100dvh;
   width: 100%;
   display: flex;
   flex-direction: column;
