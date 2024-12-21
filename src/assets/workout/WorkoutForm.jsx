@@ -10,12 +10,18 @@ const WorkoutForm = ({ onSubmit, workoutData = {} }) => {
   const [workoutDate, setWorkoutDate] = useState(workoutDateBuffer || '');
   const [startTime, setStartTime] = useState(workoutData.startTime || '');
   const [sections, setSections] = useState(workoutData.sections || []);
+  function formatDateForInput(date) {
+    const year = date.getFullYear(); // Ottieni l'anno
+    const month = String(date.getMonth() + 1).padStart(2, '0'); // Ottieni il mese (aggiungi 1 e zero iniziale)
+    const day = String(date.getDate()).padStart(2, '0'); // Ottieni il giorno (aggiungi zero iniziale)
+    return `${year}-${month}-${day}`; // Combina in formato YYYY-MM-DD
+  }
   // Sincronizza workoutDate con workoutDateBuffer
   useEffect(() => {
-    if (workoutDateBuffer && !workoutData.date) {
-      setWorkoutDate(workoutDateBuffer);
+    if (workoutDateBuffer) {
+      setWorkoutDate(formatDateForInput(workoutDateBuffer));
     }
-  }, [workoutDateBuffer, workoutData.date]);
+  }, []);
 
   // Gestione delle modifiche per ogni set
   const updateSection = (sectionIndex, field, value) => {
@@ -399,8 +405,10 @@ const FormContainer = styled.form`
   height: 90vh;
   width: 90%;
   top: 5%;
+  left: 5%;
   padding: 10px;
   overflow-y: scroll;
+  margin: 0 auto;
 `;
 const Close = styled.div`
   position: absolute;
