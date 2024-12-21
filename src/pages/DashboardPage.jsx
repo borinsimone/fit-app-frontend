@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { getWorkouts } from '../services/workoutService';
+import { addWorkouts, getWorkouts } from '../services/workoutService';
 import { useNavigate } from 'react-router-dom';
 import { useGlobalContext } from '../context/GlobalContext';
 import styled from 'styled-components';
@@ -38,27 +38,126 @@ function DashboardPage() {
   return (
     <Container>
       <Navbar />
-      {workoutFormOpen && <WorkoutForm />}
+      {/* {workoutFormOpen && <WorkoutForm />} */}
 
       <button
         onClick={async () => {
-          // getWorkouts();
-          const response = await fetch('http://localhost:5001/workouts', {
-            headers: {
-              Authorization: `Bearer ${token}`,
+          // console.log(workouts);
+          let tomorrow = new Date();
+          tomorrow.setDate(tomorrow.getDate() + 1);
+          const workout = {
+            name: 'Full Body Workout', // Nome dell'allenamento
+            date: new Date(), // Data dell'allenamento
+            completed: false, // Se l'allenamento è stato completato o meno
+            feedback: {
+              feeling: 4, // Livello di soddisfazione (da 1 a 5)
+              notes: 'Allenamento intenso, ma soddisfacente', // Feedback aggiuntivo
             },
-          });
+            notes: 'Allenamento di riscaldamento + forza', // Note generali sull'allenamento
+            sections: [
+              // Sezione Riscaldamento con esercizi time-based
+              {
+                name: 'Riscaldamento', // Nome della sezione di riscaldamento
+                exercises: [
+                  {
+                    name: 'Jumping Jacks', // Nome dell'esercizio
+                    exerciseSets: [
+                      {
+                        reps: 0, // Non utilizzato perché time-based
+                        weight: 0, // Non utilizzato per il riscaldamento
+                        rest: 30, // Non necessario per gli esercizi time-based
+                        time: 60, // Durata dell'esercizio in secondi
+                      },
+                      {
+                        reps: 0, // Non utilizzato perché time-based
+                        weight: 0, // Non utilizzato per il riscaldamento
+                        rest: 30, // Non necessario per gli esercizi time-based
+                        time: 60, // Durata dell'esercizio in secondi
+                      },
+                    ],
+                    notes: 'Riscaldamento cardiovascolare', // Note per l'esercizio
+                    timeBased: true, // Esercizio basato sul tempo
+                  },
+                  {
+                    name: 'Mountain Climbers', // Nome dell'esercizio
+                    exerciseSets: [
+                      {
+                        reps: 0, // Non utilizzato
+                        weight: 0,
+                        rest: 0,
+                        time: 45, // Durata dell'esercizio in secondi
+                      },
+                    ],
+                    notes: 'Riscaldamento dinamico', // Note per l'esercizio
+                    timeBased: true, // Esercizio time-based
+                  },
+                ],
+              },
+              // Sezione Spalle con esercizi basati su ripetizioni
+              {
+                name: 'Spalle', // Nome della sezione
+                exercises: [
+                  {
+                    name: 'Shoulder Press', // Nome dell'esercizio
+                    exerciseSets: [
+                      {
+                        reps: 12, // Numero di ripetizioni
+                        weight: 20, // Peso utilizzato (kg)
+                        rest: 60, // Tempo di riposo (in secondi)
+                        time: 0, // Non utilizzato
+                      },
+                      {
+                        reps: 10,
+                        weight: 22,
+                        rest: 75,
+                        time: 0,
+                      },
+                    ],
+                    notes: 'Eseguito lentamente per migliorare la forza', // Note per l'esercizio
+                    timeBased: false, // Non time-based, usiamo ripetizioni
+                  },
+                ],
+              },
+              // Sezione Petto con esercizi basati su ripetizioni
+              {
+                name: 'Petto', // Nome della sezione
+                exercises: [
+                  {
+                    name: 'Chest Press', // Nome dell'esercizio
+                    exerciseSets: [
+                      {
+                        reps: 15,
+                        weight: 40,
+                        rest: 90,
+                        time: 0,
+                      },
+                      {
+                        reps: 12,
+                        weight: 45,
+                        rest: 90,
+                        time: 0,
+                      },
+                    ],
+                    notes: 'Focus sulla tecnica', // Note per l'esercizio
+                    timeBased: false, // Non time-based, usiamo ripetizioni
+                  },
+                ],
+              },
+            ],
+          };
 
-          if (response.ok) {
-            const data = await response.json();
-            console.log(data);
-
-            // setWorkouts(data);
-            // console.log(workouts);
-          }
+          console.log(workout);
+          addWorkouts(workout);
         }}
       >
         shxashjxba
+      </button>
+      <button
+        onClick={() => {
+          console.log(workouts);
+        }}
+      >
+        test
       </button>
       <WidgetContainer />
     </Container>
