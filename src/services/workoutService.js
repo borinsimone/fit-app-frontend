@@ -1,3 +1,5 @@
+import axios from 'axios';
+
 const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:5001';
 
 export const getWorkouts = async (token) => {
@@ -11,8 +13,6 @@ export const getWorkouts = async (token) => {
       const data = await response.json();
 
       return data;
-
-      return data;
     } else {
       throw new Error('Failed to fetch workouts');
     }
@@ -22,22 +22,40 @@ export const getWorkouts = async (token) => {
   }
 };
 
-export const addWorkouts = async (workoutData, token) => {
+export const addWorkouts = async (workoutData) => {
   try {
-    const response = await fetch(`${API_URL}/workouts`, {
-      method: 'POST',
+    console.log('Preparazione invio dati workout:', workoutData); // Log dei dati in ingresso
+
+    const token = localStorage.getItem('token'); // Ottieni il token dalla memoria locale
+    console.log('Token recuperato dal localStorage:', token); // Log del token
+
+    const response = await axios.post(`${API_URL}/workouts`, workoutData, {
       headers: {
-        'Content-Type': 'application/json',
-        Authorization: `Bearer ${token}`,
+        Authorization: `Bearer ${token}`, // Aggiunge il token all'header Authorization
       },
-      body: JSON.stringify(workoutData),
     });
-    if (!response.ok) {
-      throw new Error('Failed to add workout');
-    }
+
+    console.log('Workout aggiunto con successo:', response.data); // Log della risposta del server
+    return response.data; // Restituisce i dati della risposta
   } catch (error) {
-    console.error('Error adding workout:', error);
-    throw error;
+    // Log degli errori
+    if (error.response) {
+      console.error('Errore dal server:', {
+        status: error.response.status,
+        data: error.response.data,
+        headers: error.response.headers,
+      });
+    } else if (error.request) {
+      console.error('Nessuna risposta ricevuta dal server:', error.request); // Log della richiesta nel caso in cui il server non risponda
+    } else {
+      console.error(
+        'Errore durante la configurazione della richiesta:',
+        error.message
+      );
+    }
+    throw error; // Rilancia l'errore per gestirlo eventualmente più in alto
+  } finally {
+    console.log('Operazione di aggiunta workout completata.'); // Indica che la funzione ha terminato
   }
 };
 
