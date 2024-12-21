@@ -18,8 +18,14 @@ const getToday = () => {
   const today = new Date();
   return today.getDate(); // Restituisce il giorno del mese (1-31)
 };
-const WorkoutCalendar = () => {
-  const { workouts, setWorkouts } = useGlobalContext();
+const AgendaWidget = () => {
+  const {
+    workouts,
+    setWorkouts,
+    setWorkoutDateBuffer,
+    workoutFormOpen,
+    setWorkoutFormOpen,
+  } = useGlobalContext();
   const [currentDate, setCurrentDate] = useState(new Date());
   const today = getToday();
   // Ottieni il mese e l'anno correnti
@@ -98,6 +104,19 @@ const WorkoutCalendar = () => {
       return workoutFormattedDate === formattedDate;
     });
   };
+  const handleDayClick = (day) => {
+    const date = new Date(year, month, day);
+    const workoutsForDay = getWorkoutsForDay(year, month, day);
+
+    if (workoutsForDay.length === 0) {
+      console.log('aggiungere workout per questo giorno');
+      setWorkoutDateBuffer(date); // Imposta la data quando clicchi su un giorno senza workout
+      setWorkoutFormOpen(true);
+      console.log(date);
+    } else {
+      console.log(`Workouts for ${day}-${month + 1}-${year}:`, workoutsForDay);
+    }
+  };
   return (
     <Container onClick={() => {}}>
       <FaChevronLeft
@@ -139,15 +158,7 @@ const WorkoutCalendar = () => {
                     : ''
                 }`}
                 onClick={() => {
-                  const workoutsForDay = getWorkoutsForDay(year, month, day);
-                  if (workoutsForDay.length === 0) {
-                    console.log('ciao');
-                  } else {
-                    console.log(
-                      `Workouts for ${day}-${month + 1}-${year}:`,
-                      workoutsForDay
-                    );
-                  }
+                  handleDayClick(day);
                 }}
               >
                 {day || ''}
@@ -164,7 +175,7 @@ const WorkoutCalendar = () => {
   );
 };
 
-export default WorkoutCalendar;
+export default AgendaWidget;
 
 const Container = styled.div`
   position: relative;
