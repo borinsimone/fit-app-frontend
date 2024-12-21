@@ -6,9 +6,11 @@ import styled from 'styled-components';
 import Navbar from '../components/Dashboard/Navbar';
 import { jwtDecode } from 'jwt-decode';
 import WidgetContainer from '../components/Dashboard/WidgetContainer';
+import WorkoutForm from '../assets/workout/WorkoutForm';
 
 function DashboardPage() {
-  const { workouts, setWorkouts, user, setUser } = useGlobalContext();
+  const { workouts, setWorkouts, user, setUser, workoutFormOpen } =
+    useGlobalContext();
   const navigate = useNavigate();
   // Fetch workouts on component mount and update workouts on token change or login/logout
   const token = localStorage.getItem('token');
@@ -36,6 +38,8 @@ function DashboardPage() {
   return (
     <Container>
       <Navbar />
+      {workoutFormOpen && <WorkoutForm />}
+
       <button
         onClick={async () => {
           // getWorkouts();

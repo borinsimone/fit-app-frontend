@@ -7,6 +7,9 @@ const GlobalContext = createContext();
 export const GlobalProvider = ({ children }) => {
   const [workouts, setWorkouts] = useState([]);
   const [user, setUser] = useState();
+
+  const [workoutDateBuffer, setWorkoutDateBuffer] = useState();
+  const [workoutFormOpen, setWorkoutFormOpen] = useState(false);
   return (
     <GlobalContext.Provider
       value={{
@@ -14,6 +17,10 @@ export const GlobalProvider = ({ children }) => {
         setWorkouts,
         user,
         setUser,
+        workoutDateBuffer,
+        setWorkoutDateBuffer,
+        workoutFormOpen,
+        setWorkoutFormOpen,
       }}
     >
       {children}
