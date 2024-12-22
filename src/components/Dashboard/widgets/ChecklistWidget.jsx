@@ -50,15 +50,14 @@ function ChecklistWidget() {
     setChecklist((prev) => prev.filter((item) => item.id !== id));
   };
 
-  const handleSettingsClick = () => {
-    console.log('Apri impostazioni per la checklist');
-  };
-
   return (
     <Container>
       <MdTune
         className='settingIcon'
-        onClick={handleSettingsClick}
+        onClick={() => {
+          console.log('Apri impostazioni per il widget di oggi');
+          alert('impostazioni per i widget verranno aggiunte presto!');
+        }}
       />
       <h3>Obiettivi</h3>
       <Checklist>

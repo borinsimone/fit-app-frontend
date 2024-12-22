@@ -63,9 +63,23 @@ function TodayWidget() {
 
   return (
     <Container>
-      {/* <MdTune className='settingIcon' /> */}
+      <MdTune
+        className='settingIcon'
+        onClick={() => {
+          console.log('Apri impostazioni per il widget di oggi');
+          alert('impostazioni per i widget verranno aggiunte presto!');
+        }}
+      />
       {totalWorkouts > 0 && (
-        <ChartContainer>
+        <ChartContainer
+          onClick={() => {
+            alert(
+              `Forza, ti mancano solo ${
+                totalWorkouts - completedWorkouts
+              } allenamenti!`
+            );
+          }}
+        >
           <PieChart
             width={60}
             height={60}
@@ -134,10 +148,10 @@ const Container = styled.div`
   justify-content: center;
   gap: 5px;
   .todayDate {
-    /* margin-bottom: 8px; */
   }
   .workoutName {
-    /* margin-bottom: 2px; */
+    font-size: 0.8em;
+    opacity: 60%;
   }
   .settingIcon {
     position: absolute;

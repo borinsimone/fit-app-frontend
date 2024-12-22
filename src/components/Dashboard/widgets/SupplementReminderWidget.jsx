@@ -58,15 +58,14 @@ function SupplementsReminderWidget() {
     setReminders((prev) => prev.filter((item) => item.id !== id));
   };
 
-  const handleSettingsClick = () => {
-    console.log('Apri impostazioni per i promemoria integratori');
-  };
-
   return (
     <Container>
       <MdTune
         className='settingIcon'
-        onClick={handleSettingsClick}
+        onClick={() => {
+          console.log('Apri impostazioni per il widget di oggi');
+          alert('impostazioni per i widget verranno aggiunte presto!');
+        }}
       />
       <h3>Promemoria Integratori</h3>
       <RemindersList>
