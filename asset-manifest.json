@@ -1,15 +1,15 @@
 {
   "files": {
-    "main.css": "/fit-app-frontend/static/css/main.41862ae0.css",
-    "main.js": "/fit-app-frontend/static/js/main.b3530dc3.js",
+    "main.css": "/fit-app-frontend/static/css/main.97bb7ead.css",
+    "main.js": "/fit-app-frontend/static/js/main.ff250aea.js",
     "static/media/gymbg.jpg": "/fit-app-frontend/static/media/gymbg.767e5db73a2d33505f08.jpg",
     "static/media/logo.png": "/fit-app-frontend/static/media/logo.86468d066e1291af2f43.png",
     "index.html": "/fit-app-frontend/index.html",
-    "main.41862ae0.css.map": "/fit-app-frontend/static/css/main.41862ae0.css.map",
-    "main.b3530dc3.js.map": "/fit-app-frontend/static/js/main.b3530dc3.js.map"
+    "main.97bb7ead.css.map": "/fit-app-frontend/static/css/main.97bb7ead.css.map",
+    "main.ff250aea.js.map": "/fit-app-frontend/static/js/main.ff250aea.js.map"
   },
   "entrypoints": [
-    "static/css/main.41862ae0.css",
-    "static/js/main.b3530dc3.js"
+    "static/css/main.97bb7ead.css",
+    "static/js/main.ff250aea.js"
   ]
 }
