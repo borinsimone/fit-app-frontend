@@ -7,7 +7,7 @@ function SupplementsReminderWidget() {
     JSON.parse(localStorage.getItem('supplementsReminders')) || []
   );
   const [newSupplement, setNewSupplement] = useState('');
-  const [newTime, setNewTime] = useState('');
+  const [newTime, setNewTime] = useState('00:00');
 
   // Salva i promemoria nel localStorage ogni volta che cambiano
   useEffect(() => {
@@ -50,6 +50,8 @@ function SupplementsReminderWidget() {
         completed: false,
       },
     ]);
+    setNewSupplement('');
+    setNewTime('00:00');
   };
 
   const deleteItem = (id) => {
@@ -199,8 +201,11 @@ const ReminderItem = styled.li`
   cursor: pointer;
 
   .supplementInfo {
+    flex: 1;
     display: flex;
     align-items: center;
+    justify-content: space-between;
+    padding-right: 20px;
     gap: 10px;
   }
 

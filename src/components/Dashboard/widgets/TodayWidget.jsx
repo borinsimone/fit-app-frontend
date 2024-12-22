@@ -63,7 +63,7 @@ function TodayWidget() {
 
   return (
     <Container>
-      <MdTune className='settingIcon' />
+      {/* <MdTune className='settingIcon' /> */}
       {totalWorkouts > 0 && (
         <ChartContainer>
           <PieChart
@@ -75,12 +75,13 @@ function TodayWidget() {
               cx='50%'
               cy='50%'
               innerRadius={22}
-              outerRadius={25}
+              outerRadius={28}
               fill='#8884d8'
               paddingAngle={0}
               dataKey='value'
               startAngle={90}
               endAngle={-270}
+              stroke='none'
             >
               {data.map((entry, index) => (
                 <Cell
@@ -126,16 +127,17 @@ const Container = styled.div`
   /* width: 45%; */
   flex: 1;
   aspect-ratio: 1;
-  padding: 20px;
+  padding: 15px;
   font-size: 15px;
   display: flex;
   flex-direction: column;
-  justify-content: end;
+  justify-content: center;
+  gap: 5px;
   .todayDate {
-    margin-bottom: 8px;
+    /* margin-bottom: 8px; */
   }
   .workoutName {
-    margin-bottom: 2px;
+    /* margin-bottom: 2px; */
   }
   .settingIcon {
     position: absolute;

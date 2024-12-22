@@ -41,7 +41,7 @@ function DashboardPage() {
       <Navbar />
       {/* {workoutFormOpen && <WorkoutForm />} */}
 
-      <button
+      {/* <button
         onClick={async () => {
           // console.log(workouts);
           let tomorrow = new Date();
@@ -152,7 +152,7 @@ function DashboardPage() {
         }}
       >
         shxashjxba
-      </button>
+      </button> */}
 
       <WidgetContainer />
     </Container>

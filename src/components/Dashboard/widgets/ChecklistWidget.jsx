@@ -122,6 +122,7 @@ const Checkbox = styled.div`
     border-radius: 50%;
   }
 `;
+
 const Container = styled.div`
   position: relative;
   color: #d9d9d9;
@@ -131,12 +132,12 @@ const Container = styled.div`
   border-radius: 20px;
   flex: 1;
   aspect-ratio: 1;
-  padding: 20px;
+  padding: 15px;
   font-size: 15px;
   display: flex;
   flex-direction: column;
   justify-content: flex-start;
-
+  gap: 8px;
   h3 {
     margin-bottom: 10px;
     font-size: 1.2em;
@@ -199,7 +200,7 @@ const ChecklistItem = styled.li`
 
   span {
     flex: 1;
-    font-size: 0.9em;
+    font-size: 0.7em;
     color: #d9d9d9;
     transition: opacity 0.3s ease;
   }
