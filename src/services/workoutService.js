@@ -4,59 +4,42 @@ const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:5001';
 
 export const getWorkouts = async (token) => {
   try {
-    const response = await fetch(`${API_URL}/workouts`, {
+    console.log('Fetching workouts with token:', token); // Debug log
+
+    const response = await axios.get(`${API_URL}/workouts`, {
       headers: {
         Authorization: `Bearer ${token}`,
       },
     });
-    if (response.ok) {
-      const data = await response.json();
-      console.log(data);
 
-      return data;
-    } else {
-      throw new Error('Failed to fetch workouts');
-    }
+    console.log('Response data:', response.data); // Debug log
+
+    return response.data;
   } catch (error) {
     console.error('Error fetching workouts:', error);
-    return [];
+    return null;
   }
 };
 
 export const addWorkouts = async (workoutData) => {
   try {
-    console.log('Preparazione invio dati workout:', workoutData); // Log dei dati in ingresso
+    console.log('Preparing to send workout data:', workoutData); // Debug log
 
-    const token = localStorage.getItem('token'); // Ottieni il token dalla memoria locale
-    console.log('Token recuperato dal localStorage:', token); // Log del token
+    const token = localStorage.getItem('token'); // Get the token from local storage
+    console.log('Token retrieved from localStorage:', token); // Debug log
 
     const response = await axios.post(`${API_URL}/workouts`, workoutData, {
       headers: {
-        Authorization: `Bearer ${token}`, // Aggiunge il token all'header Authorization
+        Authorization: `Bearer ${token}`,
       },
     });
 
-    console.log('Workout aggiunto con successo:', response.data); // Log della risposta del server
-    return response.data; // Restituisce i dati della risposta
+    console.log('Response data:', response.data); // Debug log
+
+    return response.data;
   } catch (error) {
-    // Log degli errori
-    if (error.response) {
-      console.error('Errore dal server:', {
-        status: error.response.status,
-        data: error.response.data,
-        headers: error.response.headers,
-      });
-    } else if (error.request) {
-      console.error('Nessuna risposta ricevuta dal server:', error.request); // Log della richiesta nel caso in cui il server non risponda
-    } else {
-      console.error(
-        'Errore durante la configurazione della richiesta:',
-        error.message
-      );
-    }
-    throw error; // Rilancia l'errore per gestirlo eventualmente più in alto
-  } finally {
-    console.log('Operazione di aggiunta workout completata.'); // Indica che la funzione ha terminato
+    console.error('Error adding workout:', error);
+    return null;
   }
 };
 

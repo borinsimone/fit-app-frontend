@@ -1,11 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import {
-  MdTune,
-  MdRadioButtonChecked,
-  MdRadioButtonUnchecked,
-  MdDelete,
-  MdAdd,
-} from 'react-icons/md';
+import { MdTune, MdDelete, MdAdd } from 'react-icons/md';
 import styled from 'styled-components';
 
 function ChecklistWidget() {
@@ -69,22 +63,6 @@ function ChecklistWidget() {
       <h3>Obiettivi</h3>
       <Checklist>
         {checklist.map((item) => (
-          //   <ChecklistItem key={item.id}>
-          //     <div onClick={() => toggleItem(item.id)}>
-          //       {item.completed ? (
-          //         <MdRadioButtonChecked className='icon checked' />
-          //       ) : (
-          //         <MdRadioButtonUnchecked className='icon' />
-          //       )}
-          //       <span className={item.completed ? 'completed' : ''}>
-          //         {item.text}
-          //       </span>
-          //     </div>
-          //     <MdDelete
-          //       className='deleteIcon'
-          //       onClick={() => deleteItem(item.id)}
-          //     />
-          //   </ChecklistItem>
           <ChecklistItem key={item.id}>
             <Checkbox
               checked={item.completed}
@@ -151,7 +129,7 @@ const Container = styled.div`
   border: 1px solid #00c6be;
   box-shadow: 0 0 30px #00000075;
   border-radius: 20px;
-  width: 45%;
+  flex: 1;
   aspect-ratio: 1;
   padding: 20px;
   font-size: 15px;

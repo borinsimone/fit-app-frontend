@@ -10,6 +10,19 @@ export const GlobalProvider = ({ children }) => {
 
   const [workoutDateBuffer, setWorkoutDateBuffer] = useState();
   const [workoutFormOpen, setWorkoutFormOpen] = useState(false);
+
+  //workout assistant states
+  const [selectedWorkout, setSelectedWorkout] = useState(() => {
+    const savedWorkout = localStorage.getItem('selectedWorkout');
+    return savedWorkout ? JSON.parse(savedWorkout) : null;
+  });
+
+  useEffect(() => {
+    localStorage.setItem('selectedWorkout', JSON.stringify(selectedWorkout));
+  }, [selectedWorkout]);
+  useEffect(() => {
+    console.log(selectedWorkout);
+  }, [selectedWorkout]);
   return (
     <GlobalContext.Provider
       value={{
@@ -21,6 +34,8 @@ export const GlobalProvider = ({ children }) => {
         setWorkoutDateBuffer,
         workoutFormOpen,
         setWorkoutFormOpen,
+        selectedWorkout,
+        setSelectedWorkout,
       }}
     >
       {children}

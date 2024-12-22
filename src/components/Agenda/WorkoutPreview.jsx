@@ -1,13 +1,21 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { LuTableOfContents } from 'react-icons/lu';
 import styled from 'styled-components';
 import Button from '../UI/Button';
 import { GiMuscleUp } from 'react-icons/gi';
 import { useGlobalContext } from '../../context/GlobalContext';
+import { BiCheck } from 'react-icons/bi';
+import { updateWorkout } from '../../services/workoutService';
+import { useNavigate } from 'react-router-dom';
 
 function WorkoutPreview({ workout, date }) {
-  const { workoutDateBuffer, setWorkoutDateBuffer, setWorkoutFormOpen } =
-    useGlobalContext();
+  const {
+    workoutDateBuffer,
+    setWorkoutDateBuffer,
+    setWorkoutFormOpen,
+    setSelectedWorkout,
+  } = useGlobalContext();
+  const navigate = useNavigate();
   return (
     <Container>
       {workout?.map((wor) => (
@@ -15,11 +23,22 @@ function WorkoutPreview({ workout, date }) {
           className='workoutContainer'
           key={wor._id}
         >
-          <Button>
-            <div className='text'>AVVIA SESSIONE</div>
-          </Button>
+          {wor.completed ? (
+            <Button>
+              <div className='text'>Modifica allenamento</div>
+            </Button>
+          ) : (
+            <Button
+              onClick={() => {
+                setSelectedWorkout(wor);
+                localStorage.setItem('selectedWorkout', JSON.stringify(wor));
+                navigate('/assistant');
+              }}
+            >
+              <div className='text'>AVVIA SESSIONE</div>
+            </Button>
+          )}
           <div className='title'>dettagli</div>
-
           <SectionContainer>
             <div className='icon'>
               <LuTableOfContents />
@@ -45,9 +64,14 @@ function WorkoutPreview({ workout, date }) {
                 <div className='label'>Note:</div>
                 <div className='text'>{wor.notes}</div>
               </div>
+              <div className='detail'>
+                <div className='label'>Completato:</div>
+                <div className='text'>
+                  {wor.completed ? <BiCheck /> : <>no</>}
+                </div>
+              </div>
             </div>
           </SectionContainer>
-
           <div className='title'>sezioni</div>
           {wor.sections.map((section) => (
             <SectionContainer key={section._id}>
@@ -112,9 +136,10 @@ function WorkoutPreview({ workout, date }) {
 }
 
 export default WorkoutPreview;
+
 const Container = styled.div`
   padding: 20px 10px;
-  height: 50vh;
+  height: 53vh;
   overflow-y: scroll;
   display: flex;
   flex-direction: column;
@@ -139,6 +164,7 @@ const Container = styled.div`
     }
   }
 `;
+
 const SectionContainer = styled.div`
   background-color: #d9d9d910;
   color: #d9d9d9;

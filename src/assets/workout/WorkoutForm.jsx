@@ -395,46 +395,46 @@ export default WorkoutForm;
 const FormContainer = styled.form`
   display: flex;
   flex-direction: column;
-  gap: 20px;
-  width: 100%;
-  max-width: 700px;
-  margin: 0 auto;
-  background-color: #000;
+  padding: 20px;
+  background-color: #fff;
+  border-radius: 8px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
   position: absolute;
-  z-index: 10;
-  height: 90vh;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
   width: 90%;
-  top: 5%;
-  left: 5%;
-  padding: 10px;
-  overflow-y: scroll;
-  margin: 0 auto;
+  max-width: 400px;
+  max-height: 90vh;
+  overflow: scroll;
 `;
+
 const Close = styled.div`
-  position: absolute;
-  top: 5px;
-  right: 5px;
+  align-self: flex-end;
   cursor: pointer;
-  svg {
-    path {
-      color: red;
-    }
+  font-size: 24px;
+  color: #999;
+  &:hover {
+    color: #333;
   }
 `;
+
 const FormGroup = styled.div`
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
+  margin-bottom: 15px;
 `;
 
 const Label = styled.label`
+  margin-bottom: 5px;
   font-weight: bold;
+  color: #333;
 `;
 
 const Input = styled.input`
+  width: 100%;
   padding: 8px;
   border: 1px solid #ccc;
-  border-radius: 5px;
+  border-radius: 4px;
+  font-size: 16px;
 `;
 
 const TextArea = styled.textarea`

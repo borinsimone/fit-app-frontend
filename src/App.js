@@ -21,7 +21,7 @@ const AppContent = () => {
     useGlobalContext();
   const navigate = useNavigate();
   const location = useLocation();
-  const hiddenRoutes = ['/login', '/register'];
+  const hiddenRoutes = ['/login', '/register', '/assistant'];
   const showBottomBar = !hiddenRoutes.includes(location.pathname);
   useEffect(() => {
     const token = localStorage.getItem('token');
@@ -33,6 +33,11 @@ const AppContent = () => {
       console.log('start fetching');
 
       const workoutsData = await getWorkouts(token);
+      console.log('workoutsData:', workoutsData);
+      if (!workoutsData) {
+        console.log('No workouts data');
+        navigate('/login');
+      }
       setWorkouts(workoutsData);
     };
 

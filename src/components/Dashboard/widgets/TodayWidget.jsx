@@ -2,24 +2,40 @@ import React from 'react';
 import { MdTune } from 'react-icons/md';
 import styled from 'styled-components';
 import { useGlobalContext } from '../../../context/GlobalContext';
+import { PieChart, Pie, Cell } from 'recharts';
 
 function TodayWidget() {
   const { workouts } = useGlobalContext();
+
   const today = new Date();
-  const todayString = today.toISOString().split('T')[0]; // "2024-11-18" (data di oggi senza orario)
+  const startOfWeek = new Date(today);
+  startOfWeek.setDate(today.getDate() - today.getDay() + 1); // Monday
+  const endOfWeek = new Date(startOfWeek);
+  endOfWeek.setDate(startOfWeek.getDate() + 6); // Sunday
 
-  const todayWorkout = workouts.find((workout) => {
+  // console.log('Start of week:', startOfWeek);
+  // console.log('End of week:', endOfWeek);
+  // console.log('Workouts:', workouts);
+
+  const weeklyWorkouts = workouts?.filter((workout) => {
     const workoutDate = new Date(workout.date);
-
-    // Controlla se la data è valida
-    if (isNaN(workoutDate)) {
-      console.error('Data non valida:', workout.date);
-      return false; // Se la data non è valida, ignora questo workout
-    }
-
-    const workoutDateString = workoutDate.toISOString().split('T')[0]; // "2024-11-18"
-    return workoutDateString === todayString;
+    // console.log('Workout date:', workoutDate);
+    return workoutDate >= startOfWeek && workoutDate <= endOfWeek;
   });
+
+  const completedWorkouts = weeklyWorkouts?.filter(
+    (workout) => workout.completed
+  ).length;
+  const totalWorkouts = weeklyWorkouts.length;
+  // console.log('Total workouts:', totalWorkouts);
+
+  const data = [
+    { name: 'Completati', value: completedWorkouts },
+    { name: 'Rimanenti', value: totalWorkouts - completedWorkouts },
+  ];
+
+  const COLORS = ['#00C6BE', '#00C6BE30']; // Verde per completati, grigio per rimanenti
+
   function getFormattedDate() {
     const giorniSettimana = ['Dom', 'Lun', 'Mar', 'Mer', 'Gio', 'Ven', 'Sab'];
     const mesi = [
@@ -38,34 +54,62 @@ function TodayWidget() {
     ];
 
     const oggi = new Date();
-
-    const giornoSettimana = giorniSettimana[oggi.getDay()]; // Ottieni giorno della settimana
-    const giornoMese = oggi.getDate(); // Giorno del mese
-    const mese = mesi[oggi.getMonth()]; // Mese corrente
+    const giornoSettimana = giorniSettimana[oggi.getDay()];
+    const giornoMese = oggi.getDate();
+    const mese = mesi[oggi.getMonth()];
 
     return `${giornoSettimana} ${giornoMese} ${mese}`;
   }
-  return (
-    <Container
-      onClick={() => {
-        console.log(todayWorkout);
-      }}
-    >
-      <MdTune className='settingIcon' />
-      <div className='todayDate'>{getFormattedDate()}</div>
-      <div className='workoutName'>
-        {todayWorkout?.name || 'Nessun allenamento programmato per oggi'}
-      </div>
 
-      {todayWorkout && (
-        <WorkoutTime>
-          Allenamento programmato per le:{' '}
-          {new Date(todayWorkout?.start).toLocaleTimeString('it-IT', {
-            hour: '2-digit',
-            minute: '2-digit',
-          })}
-        </WorkoutTime>
+  return (
+    <Container>
+      <MdTune className='settingIcon' />
+      {totalWorkouts > 0 && (
+        <ChartContainer>
+          <PieChart
+            width={60}
+            height={60}
+          >
+            <Pie
+              data={data}
+              cx='50%'
+              cy='50%'
+              innerRadius={22}
+              outerRadius={25}
+              fill='#8884d8'
+              paddingAngle={0}
+              dataKey='value'
+              startAngle={90}
+              endAngle={-270}
+            >
+              {data.map((entry, index) => (
+                <Cell
+                  key={`cell-${index}`}
+                  fill={COLORS[index % COLORS.length]}
+                />
+              ))}
+            </Pie>
+            {/* Aggiungiamo il testo al centro del grafico */}
+            <text
+              x='50%'
+              y='50%'
+              textAnchor='middle'
+              dominantBaseline='middle'
+              fontSize='14px'
+              fill='#fff'
+            >
+              {`${completedWorkouts}/${totalWorkouts}`}
+            </text>
+          </PieChart>
+        </ChartContainer>
       )}
+      <div className='todayDate'>{getFormattedDate()}</div>
+
+      <div className='workoutName'>
+        {weeklyWorkouts.length > 0
+          ? weeklyWorkouts[0].name
+          : 'Nessun allenamento programmato per oggi'}
+      </div>
     </Container>
   );
 }
@@ -79,14 +123,14 @@ const Container = styled.div`
   border: 1px solid #00c6be;
   box-shadow: 0 0 30px #00000075;
   border-radius: 20px;
-  width: 45%;
+  /* width: 45%; */
+  flex: 1;
   aspect-ratio: 1;
   padding: 20px;
   font-size: 15px;
   display: flex;
   flex-direction: column;
   justify-content: end;
-  /* align-items: center; */
   .todayDate {
     margin-bottom: 8px;
   }
@@ -101,8 +145,5 @@ const Container = styled.div`
     opacity: 0.7;
   }
 `;
-const WorkoutTime = styled.div`
-  font-weight: lighter;
-  opacity: 0.4;
-  font-size: 0.8em;
-`;
+
+const ChartContainer = styled.div``;

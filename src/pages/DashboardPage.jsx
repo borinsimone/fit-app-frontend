@@ -24,6 +24,7 @@ function DashboardPage() {
       console.log('start fetching');
 
       const workoutsData = await getWorkouts(token);
+
       setWorkouts(workoutsData);
     };
 
@@ -44,10 +45,10 @@ function DashboardPage() {
         onClick={async () => {
           // console.log(workouts);
           let tomorrow = new Date();
-          tomorrow.setDate(tomorrow.getDate() + 1);
+          tomorrow.setDate(tomorrow.getDate() + 3);
           const workout = {
             name: 'Full Body Workout', // Nome dell'allenamento
-            date: new Date(), // Data dell'allenamento
+            date: tomorrow, // Data dell'allenamento
             completed: false, // Se l'allenamento è stato completato o meno
             feedback: {
               feeling: 4, // Livello di soddisfazione (da 1 a 5)
@@ -152,13 +153,7 @@ function DashboardPage() {
       >
         shxashjxba
       </button>
-      <button
-        onClick={() => {
-          console.log(workouts);
-        }}
-      >
-        test
-      </button>
+
       <WidgetContainer />
     </Container>
   );

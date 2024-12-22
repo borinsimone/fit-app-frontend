@@ -5,10 +5,7 @@ import { FaChevronLeft, FaChevronRight } from 'react-icons/fa';
 import { MdTune } from 'react-icons/md';
 import Calendar from '../components/Agenda/Calendar';
 import WorkoutPreview from '../components/Agenda/WorkoutPreview';
-const getToday = () => {
-  const today = new Date();
-  return today.getDate(); // Restituisce il giorno del mese (1-31)
-};
+
 function AgendaPage() {
   const { setWorkoutDateBuffer } = useGlobalContext();
   const [dateSelected, setDateSelected] = useState(null);
@@ -17,9 +14,7 @@ function AgendaPage() {
   useEffect(() => {
     setWorkoutDateBuffer(null);
   }, []);
-  useEffect(() => {
-    console.log('data selected', dateSelected);
-  }, [dateSelected]);
+
   return (
     <Container>
       <Calendar

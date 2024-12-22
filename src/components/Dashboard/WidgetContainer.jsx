@@ -8,10 +8,14 @@ import AgendaWidget from './widgets/AgendaWidget';
 function WidgetContainer() {
   return (
     <Container>
-      <TodayWidget />
-      <ChecklistWidget />
-      <SupplementsReminderWidget />
-      <AgendaWidget />
+      <div className='row'>
+        <TodayWidget />
+        <ChecklistWidget />
+      </div>
+      <div className='row'>
+        <SupplementsReminderWidget />
+      </div>
+      {/* <AgendaWidget /> */}
     </Container>
   );
 }
@@ -19,12 +23,19 @@ function WidgetContainer() {
 export default WidgetContainer;
 const Container = styled.div`
   width: 100%;
-  height: 80%;
+  /* height: 80%; */
   padding: 20px;
 
   display: flex;
   flex-wrap: wrap;
   justify-content: center;
+  align-items: start;
   gap: 20px;
   overflow: scroll;
+  .row {
+    display: flex;
+    justify-content: space-between;
+    width: 100%;
+    gap: 20px;
+  }
 `;
