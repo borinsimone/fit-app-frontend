@@ -1,6 +1,8 @@
 import { fetchApi } from './api';
 
 export const login = async (credentials) => {
+  console.log('logging in with:', credentials);
+
   return fetchApi('/auth/login', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },

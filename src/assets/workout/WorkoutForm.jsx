@@ -1,32 +1,65 @@
 import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
-import { useGlobalContext } from '../../context/GlobalContext';
+import { MdClose, MdDelete } from 'react-icons/md';
 import { addWorkouts } from '../../services/workoutService';
-import { MdClose } from 'react-icons/md';
+import { useGlobalContext } from '../../context/GlobalContext';
 
-const WorkoutForm = ({ onSubmit, workoutData = {} }) => {
-  const { workoutDateBuffer, setWorkoutFormOpen } = useGlobalContext();
-  const [workoutName, setWorkoutName] = useState(workoutData.name || '');
+function WorkoutForm({}) {
+  const { setWorkoutFormOpen, workoutDateBuffer } = useGlobalContext();
+  const [workoutName, setWorkoutName] = useState('');
   const [workoutDate, setWorkoutDate] = useState(workoutDateBuffer || '');
-  const [startTime, setStartTime] = useState(workoutData.startTime || '');
-  const [sections, setSections] = useState(workoutData.sections || []);
-  function formatDateForInput(date) {
-    const year = date.getFullYear(); // Ottieni l'anno
-    const month = String(date.getMonth() + 1).padStart(2, '0'); // Ottieni il mese (aggiungi 1 e zero iniziale)
-    const day = String(date.getDate()).padStart(2, '0'); // Ottieni il giorno (aggiungi zero iniziale)
-    return `${year}-${month}-${day}`; // Combina in formato YYYY-MM-DD
-  }
-  // Sincronizza workoutDate con workoutDateBuffer
+  const [completed, setCompleted] = useState(false);
+  const [feeling, setFeeling] = useState(3);
+  const [feedbackNotes, setFeedbackNotes] = useState('');
+  const [generalNotes, setGeneralNotes] = useState('');
+  const [sections, setSections] = useState([
+    {
+      name: '',
+      exercises: [
+        {
+          name: '',
+          timeBased: false,
+          exerciseSets: [{ reps: 0, weight: 0, rest: 0, time: 0 }],
+          notes: '',
+        },
+      ],
+    },
+  ]);
+
   useEffect(() => {
     if (workoutDateBuffer) {
-      setWorkoutDate(formatDateForInput(workoutDateBuffer));
+      const date = new Date(workoutDateBuffer);
+      date.setMinutes(date.getMinutes() - date.getTimezoneOffset());
+      const formattedDate = date.toISOString().split('T')[0];
+      setWorkoutDate(formattedDate);
     }
-  }, []);
-
-  // Gestione delle modifiche per ogni set
-  const updateSection = (sectionIndex, field, value) => {
+  }, [workoutDateBuffer]);
+  const handleSectionChange = (index, updatedSection) => {
     const updatedSections = [...sections];
-    updatedSections[sectionIndex][field] = value;
+    updatedSections[index] = updatedSection;
+    setSections(updatedSections);
+  };
+
+  const handleExerciseChange = (
+    sectionIndex,
+    exerciseIndex,
+    updatedExercise
+  ) => {
+    const updatedSections = [...sections];
+    updatedSections[sectionIndex].exercises[exerciseIndex] = updatedExercise;
+    setSections(updatedSections);
+  };
+
+  const handleSetChange = (
+    sectionIndex,
+    exerciseIndex,
+    setIndex,
+    updatedSet
+  ) => {
+    const updatedSections = [...sections];
+    updatedSections[sectionIndex].exercises[exerciseIndex].exerciseSets[
+      setIndex
+    ] = updatedSet;
     setSections(updatedSections);
   };
 
@@ -35,15 +68,16 @@ const WorkoutForm = ({ onSubmit, workoutData = {} }) => {
       ...sections,
       {
         name: '',
-        exercises: [{ name: '', timeBased: false, notes: '', sets: [] }],
+        exercises: [
+          {
+            name: '',
+            timeBased: false,
+            exerciseSets: [{ reps: 0, weight: 0, rest: 0, time: 0 }],
+            notes: '',
+          },
+        ],
       },
     ]);
-  };
-
-  const removeSection = (sectionIndex) => {
-    const updatedSections = [...sections];
-    updatedSections.splice(sectionIndex, 1);
-    setSections(updatedSections);
   };
 
   const addExercise = (sectionIndex) => {
@@ -51,51 +85,46 @@ const WorkoutForm = ({ onSubmit, workoutData = {} }) => {
     updatedSections[sectionIndex].exercises.push({
       name: '',
       timeBased: false,
+      exerciseSets: [{ reps: 0, weight: 0, rest: 0, time: 0 }],
       notes: '',
-      sets: [],
     });
-    setSections(updatedSections);
-  };
-
-  const removeExercise = (sectionIndex, exerciseIndex) => {
-    const updatedSections = [...sections];
-    updatedSections[sectionIndex].exercises.splice(exerciseIndex, 1);
     setSections(updatedSections);
   };
 
   const addSet = (sectionIndex, exerciseIndex) => {
     const updatedSections = [...sections];
-    const currentSets =
-      updatedSections[sectionIndex].exercises[exerciseIndex].sets;
-
-    // Copia l'ultimo set se esiste, altrimenti usa valori predefiniti
-    const lastSet = currentSets[currentSets.length - 1] || {
-      reps: '',
-      weight: '',
-      time: '',
-      rest: '',
-    };
-
-    updatedSections[sectionIndex].exercises[exerciseIndex].sets.push({
-      ...lastSet, // Copia i valori dall'ultimo set
-    });
-
-    setSections(updatedSections);
-  };
-
-  const removeSet = (sectionIndex, exerciseIndex, setIndex) => {
-    const updatedSections = [...sections];
-    updatedSections[sectionIndex].exercises[exerciseIndex].sets.splice(
-      setIndex,
-      1
+    const lastSet =
+      updatedSections[sectionIndex].exercises[exerciseIndex].exerciseSets.slice(
+        -1
+      )[0];
+    const newSet = { ...lastSet };
+    updatedSections[sectionIndex].exercises[exerciseIndex].exerciseSets.push(
+      newSet
     );
     setSections(updatedSections);
   };
 
-  const toggleTimeBased = (sectionIndex, exerciseIndex) => {
+  const deleteSection = (sectionIndex) => {
+    const updatedSections = sections.filter(
+      (_, index) => index !== sectionIndex
+    );
+    setSections(updatedSections);
+  };
+
+  const deleteExercise = (sectionIndex, exerciseIndex) => {
     const updatedSections = [...sections];
-    updatedSections[sectionIndex].exercises[exerciseIndex].timeBased =
-      !updatedSections[sectionIndex].exercises[exerciseIndex].timeBased;
+    updatedSections[sectionIndex].exercises = updatedSections[
+      sectionIndex
+    ].exercises.filter((_, index) => index !== exerciseIndex);
+    setSections(updatedSections);
+  };
+
+  const deleteSet = (sectionIndex, exerciseIndex, setIndex) => {
+    const updatedSections = [...sections];
+    updatedSections[sectionIndex].exercises[exerciseIndex].exerciseSets =
+      updatedSections[sectionIndex].exercises[
+        exerciseIndex
+      ].exerciseSets.filter((_, index) => index !== setIndex);
     setSections(updatedSections);
   };
 
@@ -104,40 +133,20 @@ const WorkoutForm = ({ onSubmit, workoutData = {} }) => {
     const workout = {
       name: workoutName,
       date: workoutDate,
-      startTime,
+      completed,
+      feedback: {
+        feeling,
+        notes: feedbackNotes,
+      },
+      notes: generalNotes,
       sections,
     };
     console.log(workout);
+    addWorkouts(workout);
   };
 
   return (
     <FormContainer onSubmit={handleSubmit}>
-      <div
-        onClick={() => {
-          const workoutData = {
-            name: 'Allenamento Forza',
-            date: '2024-12-21',
-            startTime: '10:00',
-            sections: [
-              {
-                name: 'Upper Body',
-                exercises: [
-                  {
-                    name: 'Bench Press',
-                    timeBased: false,
-                    notes: '',
-                    sets: [{ reps: 10, weight: 50 }],
-                  },
-                ],
-              },
-            ],
-          };
-          const token = localStorage.getItem('token');
-          addWorkouts(workoutData, token);
-        }}
-      >
-        test
-      </div>
       <Close onClick={() => setWorkoutFormOpen(false)}>
         <MdClose />
       </Close>
@@ -159,254 +168,215 @@ const WorkoutForm = ({ onSubmit, workoutData = {} }) => {
           required
         />
       </FormGroup>
+
       <FormGroup>
-        <Label>Orario Inizio:</Label>
+        <Label>Note Generali:</Label>
         <Input
-          type='time'
-          value={startTime}
-          onChange={(e) => setStartTime(e.target.value)}
+          type='text'
+          value={generalNotes}
+          onChange={(e) => setGeneralNotes(e.target.value)}
         />
       </FormGroup>
-
-      {/* Sezioni */}
-      <FormGroup>
-        <Label>Sezioni:</Label>
-        {sections.map((section, sectionIndex) => (
-          <SectionContainer key={sectionIndex}>
-            <FormGroup>
-              <Label>Nome Sezione:</Label>
-              <Input
-                type='text'
-                value={section.name}
-                onChange={(e) =>
-                  updateSection(sectionIndex, 'name', e.target.value)
-                }
-              />
-            </FormGroup>
-
-            {/* Esercizi */}
-            {section.exercises.map((exercise, exerciseIndex) => (
-              <ExerciseContainer key={exerciseIndex}>
+      {sections.map((section, sectionIndex) => (
+        <SectionContainer key={sectionIndex}>
+          <FormGroup>
+            <Label>Nome Sezione:</Label>
+            <Input
+              type='text'
+              value={section.name}
+              onChange={(e) =>
+                handleSectionChange(sectionIndex, {
+                  ...section,
+                  name: e.target.value,
+                })
+              }
+            />
+            <DeleteButton
+              type='button'
+              onClick={() => deleteSection(sectionIndex)}
+            >
+              Elimina Sezione
+            </DeleteButton>
+          </FormGroup>
+          {section.exercises.map((exercise, exerciseIndex) => (
+            <ExerciseContainer key={exerciseIndex}>
+              <DeleteButton
+                type='button'
+                onClick={() => deleteExercise(sectionIndex, exerciseIndex)}
+              >
+                <MdDelete />
+              </DeleteButton>
+              <div className='flex'>
                 <FormGroup>
                   <Label>Nome Esercizio:</Label>
                   <Input
                     type='text'
                     value={exercise.name}
                     onChange={(e) =>
-                      updateSection(
-                        sectionIndex,
-                        'exercises',
-                        section.exercises.map((ex, i) =>
-                          i === exerciseIndex
-                            ? { ...ex, name: e.target.value }
-                            : ex
-                        )
-                      )
+                      handleExerciseChange(sectionIndex, exerciseIndex, {
+                        ...exercise,
+                        name: e.target.value,
+                      })
                     }
                   />
                 </FormGroup>
                 <FormGroup>
-                  <Label>Time-based (seleziona se tempo-based):</Label>
-                  <input
+                  <Label>Time Based:</Label>
+                  <Input
                     type='checkbox'
                     checked={exercise.timeBased}
-                    onChange={() =>
-                      toggleTimeBased(sectionIndex, exerciseIndex)
-                    }
-                  />
-                </FormGroup>
-                <FormGroup>
-                  <Label>Note:</Label>
-                  <TextArea
-                    value={exercise.notes}
                     onChange={(e) =>
-                      updateSection(
-                        sectionIndex,
-                        'exercises',
-                        section.exercises.map((ex, i) =>
-                          i === exerciseIndex
-                            ? { ...ex, notes: e.target.value }
-                            : ex
-                        )
-                      )
+                      handleExerciseChange(sectionIndex, exerciseIndex, {
+                        ...exercise,
+                        timeBased: e.target.checked,
+                      })
                     }
                   />
                 </FormGroup>
+              </div>
 
-                {/* Set */}
-                {exercise.sets.map((set, setIndex) => (
-                  <div key={setIndex}>
-                    {!exercise.timeBased && (
-                      <FormGroup>
-                        <Label>Reps:</Label>
-                        <Input
-                          type='number'
-                          value={set.reps}
-                          onChange={(e) =>
-                            updateSection(
-                              sectionIndex,
-                              'exercises',
-                              section.exercises.map((ex, i) =>
-                                i === exerciseIndex
-                                  ? {
-                                      ...ex,
-                                      sets: ex.sets.map((s, j) =>
-                                        j === setIndex
-                                          ? { ...s, reps: e.target.value }
-                                          : s
-                                      ),
-                                    }
-                                  : ex
-                              )
-                            )
-                          }
-                        />
-                      </FormGroup>
-                    )}
-
-                    {/* Condizioni specifiche per weight/time */}
-                    {exercise.timeBased ? (
-                      <FormGroup>
-                        <Label>Time (in seconds):</Label>
-                        <Input
-                          type='number'
-                          value={set.time}
-                          onChange={(e) =>
-                            updateSection(
-                              sectionIndex,
-                              'exercises',
-                              section.exercises.map((ex, i) =>
-                                i === exerciseIndex
-                                  ? {
-                                      ...ex,
-                                      sets: ex.sets.map((s, j) =>
-                                        j === setIndex
-                                          ? { ...s, time: e.target.value }
-                                          : s
-                                      ),
-                                    }
-                                  : ex
-                              )
-                            )
-                          }
-                        />
-                      </FormGroup>
-                    ) : (
-                      <FormGroup>
-                        <Label>Weight:</Label>
-                        <Input
-                          type='number'
-                          value={set.weight}
-                          onChange={(e) =>
-                            updateSection(
-                              sectionIndex,
-                              'exercises',
-                              section.exercises.map((ex, i) =>
-                                i === exerciseIndex
-                                  ? {
-                                      ...ex,
-                                      sets: ex.sets.map((s, j) =>
-                                        j === setIndex
-                                          ? { ...s, weight: e.target.value }
-                                          : s
-                                      ),
-                                    }
-                                  : ex
-                              )
-                            )
-                          }
-                        />
-                      </FormGroup>
-                    )}
-
-                    <FormGroup>
-                      <Label>Rest (in seconds):</Label>
-                      <Input
-                        type='number'
-                        value={set.rest}
-                        onChange={(e) =>
-                          updateSection(
-                            sectionIndex,
-                            'exercises',
-                            section.exercises.map((ex, i) =>
-                              i === exerciseIndex
-                                ? {
-                                    ...ex,
-                                    sets: ex.sets.map((s, j) =>
-                                      j === setIndex
-                                        ? { ...s, rest: e.target.value }
-                                        : s
-                                    ),
-                                  }
-                                : ex
-                            )
-                          )
-                        }
-                      />
-                    </FormGroup>
-                    <RemoveButton
-                      onClick={() =>
-                        removeSet(sectionIndex, exerciseIndex, setIndex)
+              <FormGroup>
+                <Label>Note Esercizio:</Label>
+                <Input
+                  type='text'
+                  value={exercise.notes}
+                  onChange={(e) =>
+                    handleExerciseChange(sectionIndex, exerciseIndex, {
+                      ...exercise,
+                      notes: e.target.value,
+                    })
+                  }
+                />
+              </FormGroup>
+              {exercise.exerciseSets.map((set, setIndex) => (
+                <SetContainer key={setIndex}>
+                  <FormGroup>
+                    <Label>Reps:</Label>
+                    <Input
+                      type='number'
+                      value={set.reps}
+                      onChange={(e) =>
+                        handleSetChange(sectionIndex, exerciseIndex, setIndex, {
+                          ...set,
+                          reps: e.target.value,
+                        })
                       }
-                    >
-                      Rimuovi Set
-                    </RemoveButton>
-                  </div>
-                ))}
-                <Button
-                  type='button'
-                  onClick={() => addSet(sectionIndex, exerciseIndex)}
-                >
-                  Aggiungi Set
-                </Button>
-                <RemoveButton
-                  onClick={() => removeExercise(sectionIndex, exerciseIndex)}
-                >
-                  Rimuovi Esercizio
-                </RemoveButton>
-              </ExerciseContainer>
-            ))}
-
-            <Button
-              type='button'
-              onClick={() => addExercise(sectionIndex)}
-            >
-              Aggiungi Esercizio
-            </Button>
-            <RemoveButton onClick={() => removeSection(sectionIndex)}>
-              Rimuovi Sezione
-            </RemoveButton>
-          </SectionContainer>
-        ))}
-        <Button
-          type='button'
-          onClick={addSection}
-        >
-          Aggiungi Sezione
-        </Button>
-      </FormGroup>
-
-      <Button type='submit'>Salva Allenamento</Button>
+                      disabled={exercise.timeBased}
+                    />
+                  </FormGroup>
+                  <FormGroup>
+                    <Label>Weight:</Label>
+                    <Input
+                      type='number'
+                      value={set.weight}
+                      onChange={(e) =>
+                        handleSetChange(sectionIndex, exerciseIndex, setIndex, {
+                          ...set,
+                          weight: e.target.value,
+                        })
+                      }
+                      disabled={exercise.timeBased}
+                    />
+                  </FormGroup>
+                  <FormGroup>
+                    <Label>Rest:</Label>
+                    <Input
+                      type='number'
+                      value={set.rest}
+                      onChange={(e) =>
+                        handleSetChange(sectionIndex, exerciseIndex, setIndex, {
+                          ...set,
+                          rest: e.target.value,
+                        })
+                      }
+                    />
+                  </FormGroup>
+                  <FormGroup>
+                    <Label>Time:</Label>
+                    <Input
+                      type='number'
+                      value={set.time}
+                      onChange={(e) =>
+                        handleSetChange(sectionIndex, exerciseIndex, setIndex, {
+                          ...set,
+                          time: e.target.value,
+                        })
+                      }
+                      disabled={!exercise.timeBased}
+                    />
+                  </FormGroup>
+                  <DeleteButton
+                    type='button'
+                    onClick={() =>
+                      deleteSet(sectionIndex, exerciseIndex, setIndex)
+                    }
+                  >
+                    <MdDelete />
+                  </DeleteButton>
+                </SetContainer>
+              ))}
+              <Button
+                type='button'
+                onClick={() => addSet(sectionIndex, exerciseIndex)}
+              >
+                Aggiungi Set
+              </Button>
+            </ExerciseContainer>
+          ))}
+          <Button
+            type='button'
+            onClick={() => addExercise(sectionIndex)}
+          >
+            Aggiungi Esercizio
+          </Button>
+        </SectionContainer>
+      ))}
+      <Button
+        type='button'
+        onClick={addSection}
+      >
+        Aggiungi Sezione
+      </Button>
+      <Button type='submit'>Salva Workout</Button>
     </FormContainer>
   );
-};
+}
 
 export default WorkoutForm;
+
 const FormContainer = styled.form`
   display: flex;
   flex-direction: column;
   padding: 20px;
-  background-color: #fff;
+  background-color: #333;
   border-radius: 8px;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  width: 90%;
   position: absolute;
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
-  width: 90%;
-  max-width: 400px;
-  max-height: 90vh;
-  overflow: scroll;
+  height: 90vh;
+  overflow: auto;
+  .flex {
+    display: flex;
+    align-items: center;
+  }
+`;
+
+const FormGroup = styled.div``;
+
+const Label = styled.label`
+  font-weight: bold;
+`;
+
+const Input = styled.input`
+  width: 100%;
+  padding: 8px;
+  border: 1px solid #cccccc30;
+  border-radius: 4px;
+  font-size: 16px;
+  background-color: #333;
 `;
 
 const Close = styled.div`
@@ -419,68 +389,40 @@ const Close = styled.div`
   }
 `;
 
-const FormGroup = styled.div`
-  margin-bottom: 15px;
-`;
-
-const Label = styled.label`
-  margin-bottom: 5px;
-  font-weight: bold;
-  color: #333;
-`;
-
-const Input = styled.input`
-  width: 100%;
-  padding: 8px;
-  border: 1px solid #ccc;
-  border-radius: 4px;
-  font-size: 16px;
-`;
-
-const TextArea = styled.textarea`
-  padding: 8px;
-  border: 1px solid #ccc;
-  border-radius: 5px;
-  resize: vertical;
-`;
-
 const Button = styled.button`
-  padding: 10px 15px;
-  background-color: #007bff;
+  padding: 10px 20px;
+  background-color: #00c6be;
   color: white;
   border: none;
-  border-radius: 5px;
+  border-radius: 4px;
   cursor: pointer;
-  font-size: 16px;
   &:hover {
-    background-color: #0056b3;
+    background-color: #00a5a3;
   }
-`;
-
-const SectionContainer = styled.div`
-  padding: 20px;
-  background-color: #f9f9f9;
-  border: 1px solid #ccc;
-  border-radius: 5px;
-`;
-
-const ExerciseContainer = styled.div`
   margin-top: 10px;
-  padding: 10px;
-  background-color: #e9ecef;
-  border: 1px solid #ddd;
-  border-radius: 5px;
 `;
 
-const RemoveButton = styled.button`
-  background-color: red;
+const DeleteButton = styled.button`
+  background-color: #ff4d4d;
   color: white;
-  padding: 5px 10px;
   border: none;
-  border-radius: 5px;
+  border-radius: 4px;
   cursor: pointer;
-  font-size: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: fit-content;
+  padding: 5px;
   &:hover {
-    background-color: #d32f2f;
+    background-color: #ff1a1a;
   }
+`;
+
+const SectionContainer = styled.div``;
+
+const ExerciseContainer = styled.div``;
+
+const SetContainer = styled.div`
+  display: flex;
+  position: relative;
 `;

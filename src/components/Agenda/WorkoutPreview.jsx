@@ -5,8 +5,13 @@ import Button from '../UI/Button';
 import { GiMuscleUp } from 'react-icons/gi';
 import { useGlobalContext } from '../../context/GlobalContext';
 import { BiCheck } from 'react-icons/bi';
-import { updateWorkout } from '../../services/workoutService';
+import {
+  deleteWorkout,
+  getWorkouts,
+  updateWorkout,
+} from '../../services/workoutService';
 import { useNavigate } from 'react-router-dom';
+import { MdDelete } from 'react-icons/md';
 
 function WorkoutPreview({ workout, date }) {
   const {
@@ -14,8 +19,18 @@ function WorkoutPreview({ workout, date }) {
     setWorkoutDateBuffer,
     setWorkoutFormOpen,
     setSelectedWorkout,
+    setWorkouts,
   } = useGlobalContext();
   const navigate = useNavigate();
+  const deleteItem = async (id) => {
+    console.log('deleting workout');
+
+    const token = localStorage.getItem('token');
+    await deleteWorkout(id, token);
+    // const updatedWorkouts = await getWorkouts(token);
+    // setWorkouts(updatedWorkouts);
+    console.log('workout deleted');
+  };
   return (
     <Container>
       {workout?.map((wor) => (
@@ -28,15 +43,29 @@ function WorkoutPreview({ workout, date }) {
               <div className='text'>Modifica allenamento</div>
             </Button>
           ) : (
-            <Button
-              onClick={() => {
-                setSelectedWorkout(wor);
-                localStorage.setItem('selectedWorkout', JSON.stringify(wor));
-                navigate('/assistant');
+            <div
+              style={{
+                position: 'relative',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                width: '100%',
               }}
             >
-              <div className='text'>AVVIA SESSIONE</div>
-            </Button>
+              <Button
+                onClick={() => {
+                  setSelectedWorkout(wor);
+                  localStorage.setItem('selectedWorkout', JSON.stringify(wor));
+                  navigate('/assistant');
+                }}
+              >
+                <div className='text'>AVVIA SESSIONE</div>
+              </Button>
+              <MdDelete
+                style={{ position: 'absolute', right: '10px' }}
+                onClick={() => deleteItem(wor._id)}
+              />
+            </div>
           )}
           <div className='title'>dettagli</div>
           <SectionContainer>

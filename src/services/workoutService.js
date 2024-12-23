@@ -46,15 +46,22 @@ export const addWorkouts = async (workoutData) => {
 
 export const deleteWorkout = async (id, token) => {
   try {
-    const response = await fetch(`${API_URL}/${id}`, {
+    console.log('Preparing to delete workout with id:', id); // Debug log
+
+    const response = await fetch(`${API_URL}/workouts/${id}`, {
       method: 'DELETE',
       headers: {
         'Content-Type': 'application/json',
         Authorization: `Bearer ${token}`,
       },
     });
+
+    console.log('Response status:', response.status); // Debug log
+
     if (!response.ok) {
       throw new Error('Failed to delete workout');
+    } else {
+      console.log('Workout deleted successfully');
     }
   } catch (error) {
     console.error('Error deleting workout:', error);
