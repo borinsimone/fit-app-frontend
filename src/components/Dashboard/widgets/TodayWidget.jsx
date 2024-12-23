@@ -10,16 +10,15 @@ function TodayWidget() {
   const today = new Date();
   const startOfWeek = new Date(today);
   startOfWeek.setDate(today.getDate() - today.getDay() + 1); // Monday
+  startOfWeek.setHours(0, 0, 0, 0); // Normalize to start of the day
+
   const endOfWeek = new Date(startOfWeek);
   endOfWeek.setDate(startOfWeek.getDate() + 6); // Sunday
-
-  // console.log('Start of week:', startOfWeek);
-  // console.log('End of week:', endOfWeek);
-  // console.log('Workouts:', workouts);
+  endOfWeek.setHours(23, 59, 59, 999); // Normalize to end of the day
 
   const weeklyWorkouts = workouts?.filter((workout) => {
     const workoutDate = new Date(workout.date);
-    // console.log('Workout date:', workoutDate);
+    workoutDate.setHours(0, 0, 0, 0); // Normalize to start of the day
     return workoutDate >= startOfWeek && workoutDate <= endOfWeek;
   });
 
@@ -27,7 +26,6 @@ function TodayWidget() {
     (workout) => workout.completed
   ).length;
   const totalWorkouts = weeklyWorkouts.length;
-  // console.log('Total workouts:', totalWorkouts);
 
   const data = [
     { name: 'Completati', value: completedWorkouts },
@@ -62,7 +60,11 @@ function TodayWidget() {
   }
 
   return (
-    <Container>
+    <Container
+      onClick={() => {
+        console.log(weeklyWorkouts);
+      }}
+    >
       <MdTune
         className='settingIcon'
         onClick={() => {
@@ -97,7 +99,7 @@ function TodayWidget() {
               endAngle={-270}
               stroke='none'
             >
-              {data.map((entry, index) => (
+              {data.map((_, index) => (
                 <Cell
                   key={`cell-${index}`}
                   fill={COLORS[index % COLORS.length]}
