@@ -40,128 +40,7 @@ function WorkoutAssistantPage() {
   }, [currentSection]);
 
   return (
-    <Container>
-      <h1 onClick={() => console.log(selectedWorkout)}>
-        {selectedWorkout.name}
-      </h1>
-      <p>Note: {selectedWorkout.notes}</p>
-      <h2>Sezioni</h2>
-      {selectedWorkout.sections.map((section) => (
-        <SectionContainer key={section._id}>
-          <div className='icon'>
-            <GiMuscleUp />
-          </div>
-          <div className='detailList'>
-            <div className='sectionName'>
-              {section.name}
-
-              <div className='start'>
-                {section.completed ? (
-                  <BiCheck />
-                ) : (
-                  <Button onClick={() => handleStartSegment(section)}>
-                    START
-                  </Button>
-                )}
-              </div>
-            </div>
-
-            {section.exercises.map((exercise) => (
-              <div
-                className='exercise'
-                key={exercise._id}
-              >
-                <div className='name'>{exercise.name}</div>
-                {exercise.timeBased ? (
-                  <div className='exerciseDetails'>
-                    {exercise.exerciseSets.map((set, index) => (
-                      <div key={set._id}>
-                        Set {index + 1} /{' '}
-                        <input
-                          type='number'
-                          value={set.time}
-                          onChange={(e) =>
-                            handleInputChange(
-                              section._id,
-                              exercise._id,
-                              set._id,
-                              'time',
-                              e.target.value
-                            )
-                          }
-                        />
-                        {`'' `} / Rest:{' '}
-                        <input
-                          type='number'
-                          value={set.rest}
-                          onChange={(e) =>
-                            handleInputChange(
-                              section._id,
-                              exercise._id,
-                              set._id,
-                              'rest',
-                              e.target.value
-                            )
-                          }
-                        />
-                      </div>
-                    ))}
-                  </div>
-                ) : (
-                  <div className='exerciseDetails'>
-                    {exercise.exerciseSets.map((set, index) => (
-                      <div key={set._id}>
-                        Set {index + 1} / Reps{' '}
-                        <input
-                          type='number'
-                          value={set.reps}
-                          onChange={(e) =>
-                            handleInputChange(
-                              section._id,
-                              exercise._id,
-                              set._id,
-                              'reps',
-                              e.target.value
-                            )
-                          }
-                        />{' '}
-                        /{' '}
-                        <input
-                          type='number'
-                          value={set.weight}
-                          onChange={(e) =>
-                            handleInputChange(
-                              section._id,
-                              exercise._id,
-                              set._id,
-                              'weight',
-                              e.target.value
-                            )
-                          }
-                        />
-                        kg / Rest:{' '}
-                        <input
-                          type='number'
-                          value={set.rest}
-                          onChange={(e) =>
-                            handleInputChange(
-                              section._id,
-                              exercise._id,
-                              set._id,
-                              'rest',
-                              e.target.value
-                            )
-                          }
-                        />
-                      </div>
-                    ))}
-                  </div>
-                )}
-              </div>
-            ))}
-          </div>
-        </SectionContainer>
-      ))}
+    <Container noscroll={openSectionAssistant}>
       {openSectionAssistant && currentSection && (
         <SectionAssistant
           currentSection={currentSection}
@@ -171,6 +50,132 @@ function WorkoutAssistantPage() {
           }}
         />
       )}
+      <h1 onClick={() => console.log(selectedWorkout)}>
+        {selectedWorkout.name}
+      </h1>
+      <p>Note: {selectedWorkout.notes}</p>
+      <h2>Sezioni</h2>
+      <div
+        className='workoutContainer'
+        noscroll={openSectionAssistant}
+      >
+        {selectedWorkout.sections.map((section) => (
+          <SectionContainer key={section._id}>
+            <div className='icon'>
+              <GiMuscleUp />
+            </div>
+            <div className='detailList'>
+              <div className='sectionName'>
+                {section.name}
+
+                <div className='start'>
+                  {section.completed ? (
+                    <BiCheck />
+                  ) : (
+                    <Button onClick={() => handleStartSegment(section)}>
+                      START
+                    </Button>
+                  )}
+                </div>
+              </div>
+
+              {section.exercises.map((exercise) => (
+                <div
+                  className='exercise'
+                  key={exercise._id}
+                >
+                  <div className='name'>{exercise.name}</div>
+                  {exercise.timeBased ? (
+                    <div className='exerciseDetails'>
+                      {exercise.exerciseSets.map((set, index) => (
+                        <div key={set._id}>
+                          Set {index + 1} /{' '}
+                          <input
+                            type='number'
+                            value={set.time}
+                            onChange={(e) =>
+                              handleInputChange(
+                                section._id,
+                                exercise._id,
+                                set._id,
+                                'time',
+                                e.target.value
+                              )
+                            }
+                          />
+                          {`'' `} / Rest:{' '}
+                          <input
+                            type='number'
+                            value={set.rest}
+                            onChange={(e) =>
+                              handleInputChange(
+                                section._id,
+                                exercise._id,
+                                set._id,
+                                'rest',
+                                e.target.value
+                              )
+                            }
+                          />
+                        </div>
+                      ))}
+                    </div>
+                  ) : (
+                    <div className='exerciseDetails'>
+                      {exercise.exerciseSets.map((set, index) => (
+                        <div key={set._id}>
+                          Set {index + 1} / Reps{' '}
+                          <input
+                            type='number'
+                            value={set.reps}
+                            onChange={(e) =>
+                              handleInputChange(
+                                section._id,
+                                exercise._id,
+                                set._id,
+                                'reps',
+                                e.target.value
+                              )
+                            }
+                          />{' '}
+                          /{' '}
+                          <input
+                            type='number'
+                            value={set.weight}
+                            onChange={(e) =>
+                              handleInputChange(
+                                section._id,
+                                exercise._id,
+                                set._id,
+                                'weight',
+                                e.target.value
+                              )
+                            }
+                          />
+                          kg / Rest:{' '}
+                          <input
+                            type='number'
+                            value={set.rest}
+                            onChange={(e) =>
+                              handleInputChange(
+                                section._id,
+                                exercise._id,
+                                set._id,
+                                'rest',
+                                e.target.value
+                              )
+                            }
+                          />
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              ))}
+            </div>
+          </SectionContainer>
+        ))}
+      </div>
     </Container>
   );
 }
@@ -181,13 +186,17 @@ const Container = styled.div`
   padding: 0 10px;
   height: 100vh;
   height: 100dvh;
-  overflow-y: scroll;
+  padding: 50px 20px;
+
+  /* height: 100dvh; */
+  /* overflow-y: scroll; */
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: center;
+  justify-content: start;
   gap: 20px;
   position: relative;
+  /* overflow-y: ${(props) => (props.noscroll ? 'hidden' : 'scroll')}; */
   button {
     .text {
       font-size: 1.3em;
@@ -196,15 +205,12 @@ const Container = styled.div`
   .workoutContainer {
     display: flex;
     flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    gap: 15px;
-    .title {
-      text-transform: uppercase;
-      font-weight: 800;
-      letter-spacing: 2px;
-      font-size: 1.3em;
-    }
+    gap: 20px;
+    height: 70vh;
+    height: 70dvh;
+    /* flex: 1; */
+    width: 100%;
+    overflow-y: ${(props) => (props.noscroll ? 'hidden' : 'scroll')};
   }
 `;
 
@@ -218,6 +224,7 @@ const SectionContainer = styled.div`
   display: flex;
   gap: 20px;
   width: 100%;
+
   input {
     all: unset;
     width: 20px;

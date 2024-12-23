@@ -141,16 +141,18 @@ export default SectionAssistant;
 const Container = styled.div`
   position: absolute;
   top: 0;
-  height: 100dvh;
   height: 100vh;
+  height: 100dvh;
   width: 100vw;
   background-color: ${({ theme }) => theme.colors.background};
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: start;
-  padding: 20px;
-  overflow: auto;
+  padding: 50px 20px;
+
+  /* overflow-y: auto; */
+  z-index: 10;
   .close {
     position: absolute;
     top: 20px;
@@ -165,13 +167,15 @@ const Content = styled.div`
   background-color: ${({ theme }) => theme.colors.cardBackground};
   border-radius: 10px;
 
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-  width: 90%;
-
+  /* box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); */
+  width: 100%;
+  height: 100vh;
+  height: 100dvh;
   display: flex;
   flex-direction: column;
   align-items: center;
   gap: 20px;
+  overflow: scroll;
   h1 {
     font-size: 1.5em;
   }

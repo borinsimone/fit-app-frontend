@@ -19,7 +19,11 @@ const TimerAssistant = ({ restTime, clear }) => {
     };
   }, [timeLeft]);
 
-  return <div>{timeLeft} seconds remaining</div>;
+  return (
+    <TimerAssistantContainer>
+      {timeLeft} seconds remaining
+    </TimerAssistantContainer>
+  );
 };
 
 export default TimerAssistant;
