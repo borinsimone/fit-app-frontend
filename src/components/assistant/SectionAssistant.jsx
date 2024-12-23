@@ -140,6 +140,7 @@ export default SectionAssistant;
 
 const Container = styled.div`
   position: absolute;
+  top: 0;
   height: 100dvh;
   height: 100vh;
   width: 100vw;
@@ -147,8 +148,9 @@ const Container = styled.div`
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: center;
+  justify-content: start;
   padding: 20px;
+  overflow: auto;
   .close {
     position: absolute;
     top: 20px;
