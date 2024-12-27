@@ -12,5 +12,7 @@
 
 body {
   font-family: "Roboto", sans-serif;
+  interpolate-size: allow-keywords;
   background-color: #16181f;
+  overflow: hidden;
 }/*# sourceMappingURL=index.css.map */

@@ -37,7 +37,7 @@ export const addWorkouts = async (workoutData) => {
 
     console.log('Response data:', response.data); // Debug log
 
-    return response.data;
+    return response;
   } catch (error) {
     console.error('Error adding workout:', error);
     return null;
@@ -70,17 +70,16 @@ export const deleteWorkout = async (id, token) => {
 };
 export const updateWorkout = async (id, token, updatedData) => {
   try {
-    const response = await fetch(`${API_URL}/${id}`, {
-      method: 'PUT',
+    const response = await axios.put(`${API_URL}/workouts/${id}`, updatedData, {
       headers: {
         'Content-Type': 'application/json',
         Authorization: `Bearer ${token}`,
       },
-      body: JSON.stringify(updatedData),
     });
-    if (!response.ok) {
-      throw new Error('Failed to update workout');
-    }
+
+    console.log('Workout updated successfully:', response.data); // Debug log
+
+    return response.data;
   } catch (error) {
     console.error('Error updating workout:', error);
     throw error;

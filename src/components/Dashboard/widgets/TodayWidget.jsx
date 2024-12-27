@@ -25,7 +25,7 @@ function TodayWidget() {
   const completedWorkouts = weeklyWorkouts?.filter(
     (workout) => workout.completed
   ).length;
-  const totalWorkouts = weeklyWorkouts.length;
+  const totalWorkouts = weeklyWorkouts?.length;
 
   const data = [
     { name: 'Completati', value: completedWorkouts },
@@ -58,6 +58,15 @@ function TodayWidget() {
 
     return `${giornoSettimana} ${giornoMese} ${mese}`;
   }
+
+  const todayWorkout = weeklyWorkouts?.find((workout) => {
+    const workoutDate = new Date(workout.date);
+    return (
+      workoutDate.getDate() === today.getDate() &&
+      workoutDate.getMonth() === today.getMonth() &&
+      workoutDate.getFullYear() === today.getFullYear()
+    );
+  });
 
   return (
     <Container
@@ -123,8 +132,8 @@ function TodayWidget() {
       <div className='todayDate'>{getFormattedDate()}</div>
 
       <div className='workoutName'>
-        {weeklyWorkouts.length > 0
-          ? weeklyWorkouts[0].name
+        {todayWorkout
+          ? todayWorkout.name
           : 'Nessun allenamento programmato per oggi'}
       </div>
     </Container>

@@ -14,11 +14,20 @@ import { GlobalProvider, useGlobalContext } from './context/GlobalContext';
 import BottomBar from './components/Dashboard/BottomBar';
 import { jwtDecode } from 'jwt-decode';
 import { getWorkouts } from './services/workoutService';
-import WorkoutForm from './assets/workout/WorkoutForm';
+import WorkoutForm from './components/WorkoutForm';
+import { AnimatePresence } from 'framer-motion';
+import Loading from './components/UI/Loading';
 
 const AppContent = () => {
-  const { workouts, setWorkouts, user, setUser, workoutFormOpen } =
-    useGlobalContext();
+  const {
+    workouts,
+    setWorkouts,
+    user,
+    setUser,
+    workoutFormOpen,
+    loading,
+    setLoading,
+  } = useGlobalContext();
   const navigate = useNavigate();
   const location = useLocation();
   const hiddenRoutes = ['/login', '/register', '/assistant'];
@@ -50,11 +59,12 @@ const AppContent = () => {
     }
   }, []);
   return (
-    <>
+    <AnimatePresence mode='wait'>
+      {loading && <Loading />}
       <AppRoutes />
       {showBottomBar && <BottomBar />}
       {workoutFormOpen && <WorkoutForm />}
-    </>
+    </AnimatePresence>
   );
 };
 

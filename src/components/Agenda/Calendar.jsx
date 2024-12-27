@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { FaChevronLeft, FaChevronRight } from 'react-icons/fa';
 import { useGlobalContext } from '../../context/GlobalContext';
+import { AnimatePresence, motion } from 'framer-motion';
 
 // Funzione per ottenere il primo giorno del mese
 const getFirstDayOfMonth = (year, month) => {
@@ -18,6 +19,9 @@ function Calendar({
   dateSelected,
   dateWorkout,
   setDateWorkout,
+  calendarExpanded,
+  setCalendarExpanded,
+  setPreviewExpanded,
 }) {
   const {
     workouts,
@@ -27,7 +31,7 @@ function Calendar({
     setWorkoutFormOpen,
   } = useGlobalContext();
   const [currentDate, setCurrentDate] = useState(new Date());
-
+  const [selectedDay, setSelectedDay] = useState(new Date());
   const today = new Date();
   today.setHours(0, 0, 0, 0); // Impostiamo la data a mezzanotte per evitare problemi di fuso orario
 
@@ -39,6 +43,7 @@ function Calendar({
     const date = new Date(year, month, today.getDate()); // Utilizziamo 'today' per gestire correttamente il giorno
     setDateSelected(date);
     handleDayClick(today.getDate());
+    // setSelectedDay(date);
   }, []);
 
   // Giorni della settimana in italiano
@@ -126,6 +131,7 @@ function Calendar({
 
   const handleDayClick = (day) => {
     const date = new Date(year, month, day);
+    setSelectedDay(date);
     const workoutsForDay = getWorkoutsForDay(year, month, day);
     setDateSelected(date);
 
@@ -142,70 +148,101 @@ function Calendar({
   const changeMonth = (direction) => {
     setCurrentDate(new Date(year, month + direction, 1));
   };
-
   return (
-    <Container>
-      <div className='calendar'>
-        <div className='calendar-header'>
-          <FaChevronLeft
-            className='prev'
-            onClick={() => changeMonth(-1)}
-          />
-          <span>
-            {currentDate.toLocaleString('it-IT', {
-              month: 'long',
-            })}
-          </span>
-          <FaChevronRight
-            className='next'
-            onClick={() => changeMonth(1)}
-          />
-        </div>
-        <div className='calendarBody'>
-          <div className='calendar-weekdays'>
-            {daysOfWeek.map((day, index) => (
-              <div
-                key={index}
-                className='calendar-weekday'
-              >
-                {day}
+    <Container
+      isexpanded={calendarExpanded}
+      onClick={() => {
+        setCalendarExpanded(true);
+        setPreviewExpanded(false);
+      }}
+    >
+      {calendarExpanded ? (
+        <AnimatePresence mode='wait'>
+          <motion.div
+            className='calendarContainer'
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.5 }}
+          >
+            <div className='calendar'>
+              <div className='calendar-header'>
+                <FaChevronLeft
+                  className='prev'
+                  onClick={() => changeMonth(-1)}
+                />
+                <span>
+                  {currentDate.toLocaleString('it-IT', {
+                    month: 'long',
+                  })}
+                </span>
+                <FaChevronRight
+                  className='next'
+                  onClick={() => changeMonth(1)}
+                />
               </div>
-            ))}
-          </div>
-          <div className='calendar-days'>
-            {calendarDays.map((day, index) => {
-              const isSelected =
-                dateSelected &&
-                day &&
-                dateSelected.getDate() === day &&
-                dateSelected.getMonth() === month &&
-                dateSelected.getFullYear() === year;
-
-              return (
-                <div
-                  key={index}
-                  className={`calendar-day ${
-                    day === today.getDate() &&
-                    month === today.getMonth() &&
-                    year === today.getFullYear()
-                      ? 'today'
-                      : ''
-                  } ${isSelected ? 'selected' : ''}`}
-                  onClick={() => handleDayClick(day)}
-                >
-                  {day || ''}
-                  {day && hasWorkout(year, month, day) && (
-                    <div className='workout-dot'></div>
-                  )}
+              <div className='calendarBody'>
+                <div className='calendar-weekdays'>
+                  {daysOfWeek.map((day, index) => (
+                    <div
+                      key={index}
+                      className='calendar-weekday'
+                    >
+                      {day}
+                    </div>
+                  ))}
                 </div>
-              );
-            })}
+                <div className='calendar-days'>
+                  {calendarDays.map((day, index) => {
+                    const isSelected =
+                      dateSelected &&
+                      day &&
+                      dateSelected.getDate() === day &&
+                      dateSelected.getMonth() === month &&
+                      dateSelected.getFullYear() === year;
+
+                    return (
+                      <div
+                        key={index}
+                        className={`calendar-day ${
+                          day === today.getDate() &&
+                          month === today.getMonth() &&
+                          year === today.getFullYear()
+                            ? 'today'
+                            : ''
+                        } ${isSelected ? 'selected' : ''}`}
+                        onClick={() => handleDayClick(day)}
+                      >
+                        {day || ''}
+                        {day && hasWorkout(year, month, day) && (
+                          <div className='workout-dot'></div>
+                        )}
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+            </div>
+            <div className='workoutName'>
+              {dateWorkout ? dateWorkout.map((workout) => workout.name) : ''}
+            </div>
+          </motion.div>
+        </AnimatePresence>
+      ) : (
+        <motion.div
+          className='collapsedContainer'
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+        >
+          <div> {today.toLocaleDateString('it-IT')}</div>
+          <div>
+            {dateWorkout
+              ? dateWorkout.map((workout) => workout.name).join(', ')
+              : 'Nessun allenamento programmato'}
           </div>
-        </div>
-      </div>
-      <div className='workoutName'>
-        {dateWorkout ? dateWorkout.map((workout) => workout.name) : ''}
-      </div>
+        </motion.div>
+      )}
     </Container>
   );
 }
@@ -214,18 +251,44 @@ export default Calendar;
 
 const Container = styled.div`
   position: relative;
-  display: flex;
+  /* display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: center;
+  justify-content: center; */
   width: 100%;
-  height: 40vh;
-  padding: 20px 0;
+  /* height: 40vh; */
+  /* padding: 20px 0; */
   position: relative;
   color: #d9d9d9;
   background-color: #d9d9d910;
+  /* height: ${(props) => (props.isexpanded ? 'auto' : '7vh')}; */
+  transition: height 2s ease;
 
   box-shadow: 0 0 30px #00000075;
+  z-index: 30;
+
+  display: grid;
+
+  transition: grid-template-rows 500ms;
+
+  grid-template-rows: ${(props) => (props.isexpanded ? '1fr' : '0fr')};
+  .collapsedContainer {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    justify-content: center;
+    align-items: center;
+    height: 10vh;
+    overflow: hidden;
+    padding: 50px;
+  }
+  .calendarContainer {
+    width: 100%;
+    padding-bottom: 20px;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+  }
   .workoutName {
     font-size: 1em;
     text-align: center;

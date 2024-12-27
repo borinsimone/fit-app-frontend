@@ -3,6 +3,7 @@ import styled from 'styled-components';
 import { MdClose, MdDelete } from 'react-icons/md';
 import { addWorkouts } from '../services/workoutService';
 import { useGlobalContext } from '../context/GlobalContext';
+import { motion } from 'framer-motion';
 
 function WorkoutForm({}) {
   const { setWorkoutFormOpen, workoutDateBuffer } = useGlobalContext();
@@ -242,7 +243,14 @@ function WorkoutForm({}) {
   };
 
   return (
-    <FormContainer onSubmit={handleSubmit}>
+    <FormContainer
+      onSubmit={handleSubmit}
+      as={motion.div}
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
+      transition={{ duration: 0.5 }}
+    >
       <Close onClick={() => setWorkoutFormOpen(false)}>
         <MdClose />
       </Close>
@@ -466,8 +474,9 @@ const FormContainer = styled.form`
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
-  height: 90vh;
+  height: 80vh;
   overflow: auto;
+  z-index: 20;
   .flex {
     display: flex;
     align-items: center;

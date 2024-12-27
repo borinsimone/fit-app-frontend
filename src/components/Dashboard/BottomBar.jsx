@@ -53,6 +53,8 @@ const Container = styled.div`
   justify-content: space-around;
   /* background-color: #f8f8f8; */
   height: 7vh;
+  height: 7dvh;
+
   background-color: ${({ theme }) => theme.colors.background};
 
   padding: 10px 0;
@@ -63,14 +65,14 @@ const IconWrapper = styled.div`
   justify-content: center;
   align-items: center;
   cursor: pointer;
-  transform: ${(props) => (props.active ? 'scale(1.3)' : 'scale(1)')};
+  transform: ${(props) => (props.active ? 'scale(1.2)' : 'scale(1)')};
   transform-origin: bottom;
   transition: transform 300ms;
   svg {
     & > * {
       user-select: none;
     }
-    font-size: 30px;
+    font-size: 25px;
 
     transition: color 0.3s ease;
     path {

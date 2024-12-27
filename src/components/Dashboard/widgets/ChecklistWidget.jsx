@@ -1,3 +1,4 @@
+import { motion, useIsPresent } from 'framer-motion';
 import React, { useState, useEffect } from 'react';
 import { MdTune, MdDelete, MdAdd } from 'react-icons/md';
 import styled from 'styled-components';
@@ -62,7 +63,7 @@ function ChecklistWidget() {
       <h3>Obiettivi</h3>
       <Checklist>
         {checklist.map((item) => (
-          <ChecklistItem key={item.id}>
+          <Item key={item.id}>
             <Checkbox
               checked={item.completed}
               onClick={() => toggleCheckbox(item.id)}
@@ -82,7 +83,7 @@ function ChecklistWidget() {
               className='deleteIcon'
               onClick={() => deleteItem(item.id)}
             />
-          </ChecklistItem>
+          </Item>
         ))}
       </Checklist>
       <AddItemContainer>
@@ -161,7 +162,7 @@ const Checklist = styled.ul`
   list-style: none;
   padding: 0;
   margin: 0;
-  overflow-y: auto;
+  overflow: scroll;
   max-height: 60%;
   display: flex;
   flex-direction: column;
@@ -214,7 +215,7 @@ const AddItemContainer = styled.div`
   display: flex;
   align-items: center;
   gap: 10px;
-
+  margin-top: auto;
   input {
     width: 100%;
     padding: 5px 10px;
@@ -241,3 +242,26 @@ const AddItemContainer = styled.div`
     }
   }
 `;
+
+const Item = ({ children, key }) => {
+  const isPresent = useIsPresent();
+  const animation = {
+    style: {
+      position: isPresent ? 'static' : 'absolute',
+    },
+    initial: { scale: 0, opacity: 0 },
+    animate: { scale: 1, opacity: 1 },
+    exit: { scale: 0, opacity: 0 },
+    transition: { type: 'spring', stiffness: 900, damping: 40 },
+  };
+  return (
+    <ChecklistItem
+      as={motion.li}
+      {...animation}
+      key={key}
+      layout
+    >
+      {children}
+    </ChecklistItem>
+  );
+};

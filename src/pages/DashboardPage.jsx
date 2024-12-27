@@ -6,7 +6,8 @@ import styled from 'styled-components';
 import Navbar from '../components/Dashboard/Navbar';
 import { jwtDecode } from 'jwt-decode';
 import WidgetContainer from '../components/Dashboard/WidgetContainer';
-import WorkoutForm from '../assets/workout/WorkoutForm';
+import WorkoutForm from '../components/WorkoutForm';
+import { motion } from 'framer-motion';
 
 function DashboardPage() {
   const { workouts, setWorkouts, user, setUser, workoutFormOpen } =
@@ -37,7 +38,13 @@ function DashboardPage() {
     }
   }, [navigate]);
   return (
-    <Container>
+    <Container
+      as={motion.div}
+      initial={{ opacity: 0, y: 100 }}
+      animate={{ opacity: 1, y: 0 }}
+      exit={{ opacity: 0, y: -100 }}
+      transition={{ duration: 0.5 }}
+    >
       <Navbar />
       {/* {workoutFormOpen && <WorkoutForm />} */}
 
@@ -161,8 +168,8 @@ function DashboardPage() {
 
 export default DashboardPage;
 const Container = styled.div`
-  height: 100vh;
-  height: 100dvh;
+  height: 93vh;
+  height: 93dvh;
   width: 100%;
   display: flex;
   flex-direction: column;

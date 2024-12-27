@@ -3,6 +3,7 @@ const theme = {
   colors: {
     light: '#00C6BE',
     background: '#16181F',
+    backgroundTransaprent: '#16181F80',
     secondaryBg: '#d9d9d910',
     text: '#d9d9d9',
   },

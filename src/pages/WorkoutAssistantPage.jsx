@@ -6,12 +6,23 @@ import { GiMuscleUp } from 'react-icons/gi';
 import { BiCheck } from 'react-icons/bi';
 import SectionAssistant from '../components/assistant/SectionAssistant';
 import { useNavigate } from 'react-router-dom';
+import { updateWorkout } from '../services/workoutService';
 
 function WorkoutAssistantPage() {
   const navigate = useNavigate();
-  const { selectedWorkout, setSelectedWorkout } = useGlobalContext();
+  const { selectedWorkout, setSelectedWorkout, setWorkoutDateBuffer } =
+    useGlobalContext();
   const [openSectionAssistant, setOpenSectionAssistant] = useState(false);
   const [currentSection, setCurrentSection] = useState(null);
+  const [timer, setTimer] = useState(0);
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setTimer((prevTimer) => prevTimer + 1);
+    }, 1000);
+
+    return () => clearInterval(interval);
+  }, []);
 
   const handleStartSegment = (segment) => {
     console.log('Starting segment:', segment);
@@ -30,15 +41,19 @@ function WorkoutAssistantPage() {
     setSelectedWorkout(updatedWorkout);
   };
 
-  if (!selectedWorkout) {
-    // alert('No workout selected');
-    // navigate(-1);
-  }
-
   useEffect(() => {
     console.log(currentSection);
   }, [currentSection]);
+  const handleTerminateWorkout = async () => {
+    const token = localStorage.getItem('token');
+    const updatedWorkout = { ...selectedWorkout };
+    updatedWorkout.completed = true;
+    await setSelectedWorkout(updatedWorkout);
+    console.log(selectedWorkout._id);
+    await updateWorkout(selectedWorkout._id, token, updatedWorkout);
 
+    navigate(-1);
+  };
   return (
     <Container noscroll={openSectionAssistant}>
       {openSectionAssistant && currentSection && (
@@ -50,9 +65,16 @@ function WorkoutAssistantPage() {
           }}
         />
       )}
+      <div>
+        {new Date(timer * 1000)
+          .toISOString()
+          .substr(11, 8)
+          .replace(/^0(?:0:0?)?/, '')}
+      </div>
       <h1 onClick={() => console.log(selectedWorkout)}>
         {selectedWorkout.name}
       </h1>
+      <p>{selectedWorkout.completed ? 'Completato' : 'In corso'}</p>
       <p>Note: {selectedWorkout.notes}</p>
       <h2>Sezioni</h2>
       <div
@@ -139,20 +161,27 @@ function WorkoutAssistantPage() {
                             }
                           />{' '}
                           /{' '}
-                          <input
-                            type='number'
-                            value={set.weight}
-                            onChange={(e) =>
-                              handleInputChange(
-                                section._id,
-                                exercise._id,
-                                set._id,
-                                'weight',
-                                e.target.value
-                              )
-                            }
-                          />
-                          kg / Rest:{' '}
+                          {set.weight > 0 && (
+                            <div
+                              style={{ display: 'flex', width: 'fit-content' }}
+                            >
+                              <input
+                                type='number'
+                                value={set.weight}
+                                onChange={(e) =>
+                                  handleInputChange(
+                                    section._id,
+                                    exercise._id,
+                                    set._id,
+                                    'weight',
+                                    e.target.value
+                                  )
+                                }
+                              />
+                              kg /
+                            </div>
+                          )}
+                          Rest:{' '}
                           <input
                             type='number'
                             value={set.rest}
@@ -176,6 +205,13 @@ function WorkoutAssistantPage() {
           </SectionContainer>
         ))}
       </div>
+      <Button
+        onClick={() => {
+          handleTerminateWorkout();
+        }}
+      >
+        <div className='text'>Fine allenamento</div>
+      </Button>
     </Container>
   );
 }
@@ -228,6 +264,10 @@ const SectionContainer = styled.div`
   input {
     all: unset;
     width: 20px;
+    text-align: center;
+    &:focus {
+      background-color: #d9d9d910;
+    }
   }
   span {
     width: 50px;

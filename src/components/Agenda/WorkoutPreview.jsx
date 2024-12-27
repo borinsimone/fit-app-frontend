@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { LuTableOfContents } from 'react-icons/lu';
 import styled from 'styled-components';
 import Button from '../UI/Button';
@@ -6,15 +6,24 @@ import { GiMuscleUp } from 'react-icons/gi';
 import { useGlobalContext } from '../../context/GlobalContext';
 import { BiCheck } from 'react-icons/bi';
 import {
+  addWorkouts,
   deleteWorkout,
   getWorkouts,
   updateWorkout,
 } from '../../services/workoutService';
 import { useNavigate } from 'react-router-dom';
-import { MdDelete } from 'react-icons/md';
+import { MdClose, MdDelete } from 'react-icons/md';
+import { AnimatePresence, motion } from 'framer-motion';
 
-function WorkoutPreview({ workout, date }) {
+function WorkoutPreview({
+  workout,
+  date,
+  setCalendarExpanded,
+  previewExpanded,
+  setPreviewExpanded,
+}) {
   const {
+    workouts,
     workoutDateBuffer,
     setWorkoutDateBuffer,
     setWorkoutFormOpen,
@@ -22,21 +31,57 @@ function WorkoutPreview({ workout, date }) {
     setWorkouts,
   } = useGlobalContext();
   const navigate = useNavigate();
-  const deleteItem = async (id) => {
-    console.log('deleting workout');
 
-    const token = localStorage.getItem('token');
-    await deleteWorkout(id, token);
-    // const updatedWorkouts = await getWorkouts(token);
-    // setWorkouts(updatedWorkouts);
-    console.log('workout deleted');
+  const deleteItem = async (id) => {
+    try {
+      const token = localStorage.getItem('token');
+      await deleteWorkout(id, token);
+      // await refreshWorkouts();
+    } catch (error) {
+      console.error('Error deleting workout:', error);
+    }
   };
+  //repeat workout
+  const [selectWorkout, setSelectWorkout] = useState(false);
+  const handleAddWorkout = async (workout) => {
+    const newDate = new Date(date);
+    newDate.setMinutes(date.getMinutes() - date.getTimezoneOffset());
+    newDate.toISOString();
+    // console.log(newDate, workout.date);
+
+    const newWorkout = { ...workout };
+    newWorkout.date = newDate.toISOString();
+    newWorkout.completed = false;
+    newWorkout.feedback.feeling = null;
+    newWorkout.feedback.notes = '';
+    console.log(newWorkout);
+    const response = await addWorkouts(newWorkout);
+    // await refreshWorkouts();
+    console.log(response);
+    if (response.status === 200) {
+      alert('Workout aggiunto');
+      setSelectWorkout(false);
+    }
+  };
+  // Show workout details
+  const [showWorkout, setShowWorkout] = useState(false);
+  const [workoutToShow, setWorkoutToShow] = useState(null);
+
+  useEffect(() => {
+    setSelectWorkout(false);
+    setShowWorkout(false);
+    setWorkoutToShow(null);
+  }, [date]);
   return (
     <Container>
       {workout?.map((wor) => (
         <div
           className='workoutContainer'
           key={wor._id}
+          onClick={() => {
+            setCalendarExpanded(false);
+            setPreviewExpanded(true);
+          }}
         >
           {wor.completed ? (
             <Button>
@@ -150,16 +195,103 @@ function WorkoutPreview({ workout, date }) {
         </div>
       ))}
       {!workout && (
-        <Button
-          onClick={() => {
-            setWorkoutDateBuffer(date);
-            console.log(date);
-            setWorkoutFormOpen(true);
-          }}
-        >
-          <div className='text'>Aggiungi workout</div>
-        </Button>
+        <div className='noWorkout'>
+          <Button
+            onClick={() => {
+              setWorkoutDateBuffer(date);
+              console.log(date);
+              setWorkoutFormOpen(true);
+            }}
+          >
+            <div className='text'>Aggiungi workout</div>
+          </Button>
+          <Button
+            onClick={() => {
+              setSelectWorkout(true);
+            }}
+          >
+            <div className='text'>Ripeti workout</div>
+          </Button>
+        </div>
       )}
+
+      <AnimatePresence mode='wait'>
+        {selectWorkout && (
+          <RepeatContainer
+            as={motion.div}
+            initial={{ opacity: 0, y: 100 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0 }}
+            duration={{ duration: 0.5 }}
+          >
+            <MdClose onClick={() => setSelectWorkout(false)} />
+            {[
+              ...new Map(
+                workouts.map((workout) => [workout.name, workout])
+              ).values(),
+            ].map((workout) => (
+              <div
+                className='workoutContainer'
+                key={workout._id}
+              >
+                {workout.name}
+                <div
+                  className='add'
+                  onClick={() => {
+                    handleAddWorkout(workout);
+                  }}
+                >
+                  scegli
+                </div>
+                <div
+                  className='show'
+                  onClick={() => {
+                    setWorkoutToShow(workout);
+                    setShowWorkout(true);
+                    console.log(workout._id);
+                  }}
+                >
+                  mostra
+                </div>
+              </div>
+            ))}
+          </RepeatContainer>
+        )}
+      </AnimatePresence>
+      <AnimatePresence mode='wait'>
+        {showWorkout && (
+          <ShowContainer
+            as={motion.div}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+          >
+            <MdClose
+              onClick={() => {
+                setShowWorkout(false);
+                setWorkoutToShow(null);
+              }}
+            />
+            {workoutToShow && (
+              <div className='workout'>
+                <div className='name'>{workoutToShow.name}</div>
+                {workoutToShow.sections.map((section) => (
+                  <div className='section'>
+                    <div className='sectionName'>{section.name}</div>
+                    <div className='sectionCotent'>
+                      {section.exercises.map((exercise) => (
+                        <div className='exercise'>
+                          {exercise.name} x {exercise.exerciseSets.length}
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </ShowContainer>
+        )}
+      </AnimatePresence>
     </Container>
   );
 }
@@ -167,13 +299,15 @@ function WorkoutPreview({ workout, date }) {
 export default WorkoutPreview;
 
 const Container = styled.div`
+  /* height: 40vh; */
+  flex: 1;
   padding: 20px 10px;
-  height: 53vh;
-  overflow-y: scroll;
+  overflow-y: auto;
   display: flex;
   flex-direction: column;
   align-items: center;
   gap: 20px;
+  position: relative;
   button {
     .text {
       font-size: 1.3em;
@@ -190,6 +324,21 @@ const Container = styled.div`
       font-weight: 800;
       letter-spacing: 2px;
       font-size: 1.3em;
+    }
+  }
+  .noWorkout {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+    width: 100%;
+    gap: 20px;
+    button {
+      width: 90%;
+      .text {
+        color: ${({ theme }) => theme.colors.background};
+      }
     }
   }
 `;
@@ -261,5 +410,106 @@ const SectionContainer = styled.div`
   }
   .sectionName {
     text-transform: capitalize;
+  }
+`;
+
+const RepeatContainer = styled.div`
+  position: absolute;
+
+  background-color: ${({ theme }) => theme.colors.background};
+  -webkit-backdrop-filter: blur(5px);
+  backdrop-filter: blur(5px);
+  height: 100%;
+  width: 90vw;
+  /* top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%); */
+  z-index: 100;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 20px;
+  svg {
+    font-size: 30px;
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    path {
+      color: red;
+    }
+  }
+  .workoutContainer {
+    background-color: #d9d9d910;
+    padding: 10px 20px;
+    display: flex;
+    flex-direction: row;
+    width: 90%;
+    border-radius: 10px;
+    div {
+      text-transform: capitalize;
+      background-color: ${({ theme }) => theme.colors.light};
+      padding: 5px 10px;
+      border-radius: 5px;
+      color: ${({ theme }) => theme.colors.background};
+      font-weight: 600;
+    }
+    .add {
+      margin-left: auto;
+    }
+  }
+`;
+const ShowContainer = styled.div`
+  position: absolute;
+
+  background-color: ${({ theme }) => theme.colors.background};
+  -webkit-backdrop-filter: blur(5px);
+  backdrop-filter: blur(5px);
+  height: 100%;
+  width: 90vw;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 100;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 20px;
+  svg {
+    font-size: 30px;
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    path {
+      color: red;
+    }
+  }
+  .workout {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    .name {
+      font-size: 1.2em;
+      font-weight: 700;
+    }
+  }
+  .section {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    .sectionName {
+      font-size: 1.1em;
+    }
+    .sectionCotent {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+    .exercise {
+      font-size: 0.8em;
+      font-weight: 100;
+      opacity: 90%;
+    }
   }
 `;
