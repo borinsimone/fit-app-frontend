@@ -57,7 +57,8 @@ const Container = styled.div`
 
   background-color: ${({ theme }) => theme.colors.background};
 
-  padding: 10px 0;
+  padding: 15px 0;
+  padding-bottom: 20px;
 `;
 
 const IconWrapper = styled.div`

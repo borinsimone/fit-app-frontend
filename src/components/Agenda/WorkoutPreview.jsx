@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { LuTableOfContents } from 'react-icons/lu';
 import styled from 'styled-components';
 import Button from '../UI/Button';
@@ -72,8 +72,29 @@ function WorkoutPreview({
     setShowWorkout(false);
     setWorkoutToShow(null);
   }, [date]);
+  const scrollableRef = useRef(null);
+  useEffect(() => {
+    const handleScroll = () => {
+      const { scrollTop } = scrollableRef.current;
+
+      if (scrollTop <= 0) {
+        console.log('top');
+        setCalendarExpanded(true);
+      } else {
+        console.log('down');
+        setCalendarExpanded(false);
+      }
+    };
+
+    const scrollableElement = scrollableRef.current;
+    scrollableElement.addEventListener('scroll', handleScroll);
+
+    return () => {
+      scrollableElement.removeEventListener('scroll', handleScroll);
+    };
+  }, []);
   return (
-    <Container>
+    <Container ref={scrollableRef}>
       {workout?.map((wor) => (
         <div
           className='workoutContainer'
