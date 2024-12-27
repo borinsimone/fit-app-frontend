@@ -5,12 +5,18 @@ import Input from '../UI/Input';
 import Button from '../UI/Button';
 import logo from '../../assets/images/logo.png';
 import bg from '../../assets/images/gymbg.jpg';
+import { useGlobalContext } from '../../context/GlobalContext';
 const LoginForm = ({ onSubmit }) => {
+  const { setLoading } = useGlobalContext();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    if (!email || !password) {
+      alert('inserisci email e password');
+      return;
+    }
     onSubmit({ email, password });
   };
 
@@ -32,16 +38,19 @@ const LoginForm = ({ onSubmit }) => {
           type='email'
           placeholder='Email'
           value={email}
+          required
           onChange={(e) => setEmail(e.target.value)}
         />
         <Input
           type='password'
           placeholder='Password'
           value={password}
+          required
           onChange={(e) => setPassword(e.target.value)}
         />
         <Button type='submit'>Login</Button>
       </form>
+
       <div className='registerlink'>
         Non hai un account? <Link to='/register'>Registrati</Link>
       </div>
@@ -62,7 +71,7 @@ const Container = styled.div`
   gap: 40px;
   color: ${({ theme }) => theme.colors.text};
   position: relative;
-
+  /* object-fit: cover; */
   overflow: hidden;
   .logo {
     height: 100px;
@@ -70,7 +79,9 @@ const Container = styled.div`
   .bg {
     z-index: -2;
     position: absolute;
+    width: 100%;
     height: 100%;
+    object-fit: cover;
   }
   .layer {
     height: 100%;

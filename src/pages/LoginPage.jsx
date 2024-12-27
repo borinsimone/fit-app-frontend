@@ -6,9 +6,10 @@ import { useGlobalContext } from '../context/GlobalContext';
 import { jwtDecode } from 'jwt-decode';
 
 const LoginPage = () => {
-  const { user, setUser } = useGlobalContext();
+  const { user, setUser, setLoading } = useGlobalContext();
   const navigate = useNavigate();
   const handleLogin = async (credentials) => {
+    setLoading(true);
     try {
       const response = await login(credentials);
       console.log('Logged in:', response);
@@ -18,6 +19,8 @@ const LoginPage = () => {
       navigate('/dashboard');
     } catch (error) {
       console.error('Login error:', error);
+    } finally {
+      setLoading(false);
     }
   };
 
