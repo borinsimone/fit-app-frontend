@@ -4,6 +4,7 @@ import TodayWidget from './widgets/TodayWidget';
 import ChecklistWidget from './widgets/ChecklistWidget';
 import SupplementsReminderWidget from './widgets/SupplementReminderWidget';
 import AgendaWidget from './widgets/AgendaWidget';
+import CalendarWidget from './widgets/CalendarWidget';
 
 function WidgetContainer() {
   return (
@@ -16,6 +17,7 @@ function WidgetContainer() {
         <SupplementsReminderWidget />
       </div>
       {/* <AgendaWidget /> */}
+      <CalendarWidget />
     </Container>
   );
 }

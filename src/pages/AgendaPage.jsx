@@ -9,10 +9,11 @@ import { useNavigate } from 'react-router-dom';
 import { jwtDecode } from 'jwt-decode';
 import { getWorkouts } from '../services/workoutService';
 import { motion } from 'framer-motion';
+import NewCalendar from '../components/Agenda/NewCalendar';
 
 function AgendaPage() {
   const { setUser, setWorkouts } = useGlobalContext();
-  const [dateSelected, setDateSelected] = useState(null);
+  const [dateSelected, setDateSelected] = useState(new Date());
   const [dateWorkout, setDateWorkout] = useState(null);
 
   const navigate = useNavigate();
@@ -44,6 +45,9 @@ function AgendaPage() {
 
   const [calendarExpanded, setCalendarExpanded] = useState(true);
   const [previewExpanded, setPreviewExpanded] = useState(false);
+  useEffect(() => {
+    console.log('date selected cambia', dateSelected);
+  }, [dateSelected]);
   return (
     <Container
       as={motion.div}
@@ -52,7 +56,7 @@ function AgendaPage() {
       exit={{ opacity: 0, y: -100 }}
       transition={{ duration: 0.5 }}
     >
-      <Calendar
+      {/* <Calendar
         dateSelected={dateSelected}
         setDateSelected={setDateSelected}
         dateWorkout={dateWorkout}
@@ -61,6 +65,14 @@ function AgendaPage() {
         setCalendarExpanded={setCalendarExpanded}
         previewExpanded={previewExpanded}
         setPreviewExpanded={setPreviewExpanded}
+      /> */}
+      <NewCalendar
+        dateSelected={dateSelected}
+        setDateSelected={setDateSelected}
+        dateWorkout={dateWorkout}
+        setDateWorkout={setDateWorkout}
+        calendarExpanded={calendarExpanded}
+        setCalendarExpanded={setCalendarExpanded}
       />
 
       <WorkoutPreview

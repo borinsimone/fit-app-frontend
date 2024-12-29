@@ -7,32 +7,87 @@ import { PieChart, Pie, Cell } from 'recharts';
 function TodayWidget() {
   const { workouts } = useGlobalContext();
 
+  // // const today = new Date();
+  // // const startOfWeek = new Date(today);
+  // // startOfWeek.setDate(today.getDate() - today.getDay() + 1); // Monday
+  // // startOfWeek.setHours(0, 0, 0, 0); // Normalize to start of the day
+
+  // // const endOfWeek = new Date(startOfWeek);
+  // // endOfWeek.setDate(startOfWeek.getDate() + 6); // Sunday
+  // // endOfWeek.setHours(23, 59, 59, 999); // Normalize to end of the day
+
+  // // const weeklyWorkouts = workouts?.filter((workout) => {
+  // //   const workoutDate = new Date(workout.date);
+  // //   workoutDate.setHours(0, 0, 0, 0); // Normalize to start of the day
+  // //   return workoutDate >= startOfWeek && workoutDate <= endOfWeek;
+  // // });
+
+  // const completedWorkouts = weeklyWorkouts?.filter(
+  //   (workout) => workout.completed
+  // ).length;
+  // const totalWorkouts = weeklyWorkouts?.length;
+
+  // const data = [
+  //   { name: 'Completati', value: completedWorkouts },
+  //   { name: 'Rimanenti', value: totalWorkouts - completedWorkouts },
+  // ];
+
+  // const COLORS = ['#00C6BE', '#00C6BE30']; // Verde per completati, grigio per rimanenti
+
+  // function getFormattedDate() {
+  //   const giorniSettimana = ['Dom', 'Lun', 'Mar', 'Mer', 'Gio', 'Ven', 'Sab'];
+  //   const mesi = [
+  //     'Gen',
+  //     'Feb',
+  //     'Mar',
+  //     'Apr',
+  //     'Mag',
+  //     'Giu',
+  //     'Lug',
+  //     'Ago',
+  //     'Set',
+  //     'Ott',
+  //     'Nov',
+  //     'Dic',
+  //   ];
+
+  //   const oggi = new Date();
+  //   const giornoSettimana = giorniSettimana[oggi.getDay()];
+  //   const giornoMese = oggi.getDate();
+  //   const mese = mesi[oggi.getMonth()];
+
+  //   return `${giornoSettimana} ${giornoMese} ${mese}`;
+  // }
   const today = new Date();
-  const startOfWeek = new Date(today);
-  startOfWeek.setDate(today.getDate() - today.getDay() + 1); // Monday
-  startOfWeek.setHours(0, 0, 0, 0); // Normalize to start of the day
 
-  const endOfWeek = new Date(startOfWeek);
-  endOfWeek.setDate(startOfWeek.getDate() + 6); // Sunday
-  endOfWeek.setHours(23, 59, 59, 999); // Normalize to end of the day
+  // Get current week range
+  const currentMonday = new Date(today);
+  currentMonday.setDate(
+    today.getDate() - today.getDay() + (today.getDay() === 0 ? -6 : 1)
+  );
+  currentMonday.setHours(0, 0, 0, 0);
 
+  const currentSunday = new Date(currentMonday);
+  currentSunday.setDate(currentMonday.getDate() + 6);
+  currentSunday.setHours(23, 59, 59, 999);
+
+  // Filter workouts for current week
   const weeklyWorkouts = workouts?.filter((workout) => {
     const workoutDate = new Date(workout.date);
-    workoutDate.setHours(0, 0, 0, 0); // Normalize to start of the day
-    return workoutDate >= startOfWeek && workoutDate <= endOfWeek;
+    workoutDate.setHours(0, 0, 0, 0);
+    return workoutDate >= currentMonday && workoutDate <= currentSunday;
   });
 
-  const completedWorkouts = weeklyWorkouts?.filter(
-    (workout) => workout.completed
-  ).length;
-  const totalWorkouts = weeklyWorkouts?.length;
+  const completedWorkouts =
+    weeklyWorkouts?.filter((workout) => workout.completed).length || 0;
+  const totalWorkouts = weeklyWorkouts?.length || 0;
 
   const data = [
     { name: 'Completati', value: completedWorkouts },
     { name: 'Rimanenti', value: totalWorkouts - completedWorkouts },
   ];
 
-  const COLORS = ['#00C6BE', '#00C6BE30']; // Verde per completati, grigio per rimanenti
+  const COLORS = ['#00C6BE', '#00C6BE30'];
 
   function getFormattedDate() {
     const giorniSettimana = ['Dom', 'Lun', 'Mar', 'Mer', 'Gio', 'Ven', 'Sab'];
@@ -51,12 +106,9 @@ function TodayWidget() {
       'Dic',
     ];
 
-    const oggi = new Date();
-    const giornoSettimana = giorniSettimana[oggi.getDay()];
-    const giornoMese = oggi.getDate();
-    const mese = mesi[oggi.getMonth()];
-
-    return `${giornoSettimana} ${giornoMese} ${mese}`;
+    return `${giorniSettimana[today.getDay()]} ${today.getDate()} ${
+      mesi[today.getMonth()]
+    }`;
   }
 
   const todayWorkout = weeklyWorkouts?.find((workout) => {
