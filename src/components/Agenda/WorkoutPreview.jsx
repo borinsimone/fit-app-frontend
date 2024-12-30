@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { LuTableOfContents } from 'react-icons/lu';
-import styled from 'styled-components';
+import styled, { css } from 'styled-components';
 import Button from '../UI/Button';
 import { GiMuscleUp } from 'react-icons/gi';
 import { useGlobalContext } from '../../context/GlobalContext';
@@ -36,9 +36,13 @@ function WorkoutPreview({
     try {
       const token = localStorage.getItem('token');
       const response = await deleteWorkout(id, token);
-      console.log(response);
-      const updatedWorkouts = await getWorkouts();
-      setWorkouts(updatedWorkouts);
+      console.log(response.status);
+      if (response.status === 200) {
+        const updatedWorkouts = await getWorkouts();
+        setWorkouts(updatedWorkouts);
+      } else {
+        alert('problema con l eliminazione del workout', id);
+      }
     } catch (error) {
       console.error('Error deleting workout:', error);
     }
@@ -77,145 +81,68 @@ function WorkoutPreview({
     setWorkoutToShow(null);
   }, [date]);
   const scrollableRef = useRef(null);
-  useEffect(() => {
-    const handleScroll = () => {
-      const { scrollTop } = scrollableRef.current;
+  // useEffect(() => {
+  //   const handleScroll = () => {
+  //     const { scrollTop } = scrollableRef.current;
 
-      if (scrollTop <= 0) {
-        console.log('top');
-        setCalendarExpanded(true);
-      } else {
-        console.log('down');
-        setCalendarExpanded(false);
-      }
-    };
+  //     if (scrollTop <= 0) {
+  //       console.log('top');
+  //       setCalendarExpanded(true);
+  //     } else {
+  //       console.log('down');
+  //       setCalendarExpanded(false);
+  //     }
+  //   };
 
-    const scrollableElement = scrollableRef.current;
-    scrollableElement.addEventListener('scroll', handleScroll);
+  //   const scrollableElement = scrollableRef.current;
+  //   scrollableElement.addEventListener('scroll', handleScroll);
 
-    return () => {
-      scrollableElement.removeEventListener('scroll', handleScroll);
-    };
-  }, []);
-  const [isEditing, setIsEditing] = useState(false);
+  //   return () => {
+  //     scrollableElement.removeEventListener('scroll', handleScroll);
+  //   };
+  // }, []);
   const [editedWorkout, setEditedWorkout] = useState(null);
-  // Add update handler
-  const handleUpdate = async () => {
+  const handleInputChange = (
+    sectionIndex,
+    exerciseIndex,
+    setIndex,
+    field,
+    e
+  ) => {
     try {
-      const token = localStorage.getItem('token');
-      await updateWorkout(editedWorkout._id, editedWorkout, token);
-      // refreshWorkouts();
-      setIsEditing(false);
+      const value = e.target.value;
+
+      setEditedWorkout((prevWorkout) => {
+        const updatedWorkout = { ...prevWorkout };
+        const section = updatedWorkout.sections[sectionIndex];
+        const exercise = section.exercises[exerciseIndex];
+
+        if (setIndex !== undefined) {
+          // Update set field
+          exercise.exerciseSets[setIndex][field] = value;
+        } else if (exerciseIndex !== undefined) {
+          // Update exercise field
+          exercise[field] = value;
+        } else {
+          // Update section field
+          section[field] = value;
+        }
+
+        return updatedWorkout;
+      });
     } catch (error) {
-      console.error('Error updating workout:', error);
+      console.error('Error updating field:', error);
     }
   };
-  // Add these handlers after other state declarations
-  const handleSetChange = (sectionIndex, exerciseIndex, setIndex, field, e) => {
-    const value = e.target.value;
-    setEditedWorkout((prev) => {
-      const newWorkout = { ...prev };
-      const set =
-        newWorkout.sections[sectionIndex].exercises[exerciseIndex].exerciseSets[
-          setIndex
-        ];
-      set[field] = value;
-      return newWorkout;
-    });
-  };
+  // Add new state after other state declarations
+  const [expandedStates, setExpandedStates] = useState({});
 
-  const handleExerciseChange = (sectionIndex, exerciseIndex, e) => {
-    const value = e.target.value;
-    setEditedWorkout((prev) => {
-      const newWorkout = { ...prev };
-      newWorkout.sections[sectionIndex].exercises[exerciseIndex].name = value;
-      return newWorkout;
-    });
-  };
-
-  const handleAddSection = () => {
-    setEditedWorkout((prev) => ({
+  // Add toggle handler after other handlers
+  const toggleExpanded = (workoutId, exerciseId) => {
+    setExpandedStates((prev) => ({
       ...prev,
-      sections: [
-        ...prev.sections,
-        {
-          name: 'Nuova Sezione',
-          exercises: [
-            {
-              name: 'Nuovo Esercizio',
-              timeBased: false,
-              exerciseSets: [
-                {
-                  reps: 0,
-                  weight: 0,
-                  rest: 0,
-                  time: 0,
-                },
-              ],
-            },
-          ],
-        },
-      ],
+      [`${workoutId}-${exerciseId}`]: !prev[`${workoutId}-${exerciseId}`],
     }));
-  };
-
-  const handleRemoveSection = (sectionIndex) => {
-    setEditedWorkout((prev) => ({
-      ...prev,
-      sections: prev.sections.filter((_, index) => index !== sectionIndex),
-    }));
-  };
-
-  const handleAddExercise = (sectionIndex) => {
-    setEditedWorkout((prev) => {
-      const newWorkout = { ...prev };
-      newWorkout.sections[sectionIndex].exercises.push({
-        name: 'Nuovo Esercizio',
-        timeBased: false,
-        exerciseSets: [
-          {
-            reps: 0,
-            weight: 0,
-            rest: 0,
-            time: 0,
-          },
-        ],
-      });
-      return newWorkout;
-    });
-  };
-
-  const handleRemoveExercise = (sectionIndex, exerciseIndex) => {
-    setEditedWorkout((prev) => {
-      const newWorkout = { ...prev };
-      newWorkout.sections[sectionIndex].exercises = newWorkout.sections[
-        sectionIndex
-      ].exercises.filter((_, index) => index !== exerciseIndex);
-      return newWorkout;
-    });
-  };
-
-  const handleAddSet = (sectionIndex, exerciseIndex) => {
-    setEditedWorkout((prev) => {
-      const newWorkout = { ...prev };
-      const exercise =
-        newWorkout.sections[sectionIndex].exercises[exerciseIndex];
-      const lastSet = exercise.exerciseSets[exercise.exerciseSets.length - 1];
-      exercise.exerciseSets.push({ ...lastSet });
-      return newWorkout;
-    });
-  };
-
-  const handleRemoveSet = (sectionIndex, exerciseIndex, setIndex) => {
-    setEditedWorkout((prev) => {
-      const newWorkout = { ...prev };
-      const exercise =
-        newWorkout.sections[sectionIndex].exercises[exerciseIndex];
-      exercise.exerciseSets = exercise.exerciseSets.filter(
-        (_, index) => index !== setIndex
-      );
-      return newWorkout;
-    });
   };
 
   return (
@@ -266,6 +193,10 @@ function WorkoutPreview({
 
             <div className='detailList'>
               <div className='detail'>
+                <div className='label'>Nome:</div>
+                <div className='text'>{wor.name}</div>
+              </div>
+              <div className='detail'>
                 <div className='label'>Data:</div>
                 <div className='text'>
                   {new Date(wor.date).toLocaleDateString('it-IT')}
@@ -282,7 +213,11 @@ function WorkoutPreview({
               </div>
               <div className='detail'>
                 <div className='label'>Note:</div>
-                <div className='text'>{wor.notes}</div>
+                <input
+                  type='text'
+                  value={wor.notes}
+                  onChange={(e) => {}}
+                />
               </div>
               <div className='detail'>
                 <div className='label'>Completato:</div>
@@ -294,324 +229,37 @@ function WorkoutPreview({
           </SectionContainer>
           <div className='title'>sezioni</div>
           {wor.sections.map((section) => (
-            <SectionContainer key={section._id}>
+            <SectionContainer
+              key={section._id}
+              onClick={() => {
+                console.log(expandedStates[`${wor._id}-${section._id}`]);
+
+                toggleExpanded(wor._id, section._id);
+              }}
+            >
               <div className='icon'>
                 <GiMuscleUp />
               </div>
               <div className='detailList'>
                 <div className='sectionName'>{section.name}</div>
-                {section.exercises.map((exercise, i) => (
-                  <div
-                    className='exercise'
-                    key={exercise._id}
-                  >
-                    <div className='name'>{exercise.name}</div>
-                    {exercise.timeBased ? (
-                      <div className='exerciseDetails'>
-                        {exercise.exerciseSets.length} x{' '}
-                        {exercise.exerciseSets
-                          .map((set, index) => `${set.time}''`)
-                          .join(' / ')}{' '}
-                        Rest:{' '}
-                        {exercise.exerciseSets
-                          .map((set, index) => `${set.rest}''`)
-                          .join(' / ')}{' '}
-                      </div>
-                    ) : (
-                      <div className='exerciseDetails'>
-                        {exercise.exerciseSets.length} x{' '}
-                        {exercise.exerciseSets
-                          .map((set, index) => `${set.reps} reps`)
-                          .join(' / ')}{' '}
-                        {exercise.exerciseSets
-                          .map((set, index) => `${set.weight}kg`)
-                          .join(' / ')}{' '}
-                        <br />
-                        Rest:{' '}
-                        {exercise.exerciseSets
-                          .map((set, index) => `${set.rest}''`)
-                          .join(' / ')}
-                      </div>
-                    )}
-                  </div>
-                ))}
-              </div>
-            </SectionContainer>
-          ))}
-
-          {/* {wor.completed ? (
-            <Button
-              onClick={() => {
-                setIsEditing(true);
-                setEditedWorkout({ ...wor });
-              }}
-            >
-              <div className='text'>Modifica allenamento</div>
-            </Button>
-          ) : (
-            <div
-              style={{
-                position: 'relative',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                width: '100%',
-              }}
-            >
-              <Button
-                onClick={() => {
-                  setSelectedWorkout(wor);
-                  localStorage.setItem('selectedWorkout', JSON.stringify(wor));
-                  navigate('/assistant');
-                }}
-              >
-                <div className='text'>AVVIA SESSIONE</div>
-              </Button>
-              <MdDelete
-                style={{ position: 'absolute', right: '10px' }}
-                onClick={() => deleteItem(wor._id)}
-              />
-            </div>
-          )} */}
-
-          {/* {isEditing ? (
-            <div className='edit'>
-              <div className='title'>dettagli</div>
-              <SectionContainer>
-                <div className='icon'>
-                  <LuTableOfContents />
-                </div>
-                <div className='detailList'>
-                  <div className='detail'>
-                    <div className='label'>Data:</div>
-                    <Input
-                      type='date'
-                      value={
-                        new Date(editedWorkout.date).toISOString().split('T')[0]
-                      }
-                      onChange={(e) =>
-                        setEditedWorkout({
-                          ...editedWorkout,
-                          date: e.target.value,
-                        })
-                      }
-                    />
-                  </div>
-                  <div className='detail'>
-                    <div className='label'>Note:</div>
-                    <Input
-                      type='text'
-                      value={editedWorkout.notes}
-                      onChange={(e) =>
-                        setEditedWorkout({
-                          ...editedWorkout,
-                          notes: e.target.value,
-                        })
-                      }
-                    />
-                  </div>
-                </div>
-              </SectionContainer>
-              <div className='title'>sezioni</div>
-              {editedWorkout.sections.map((section, sectionIndex) => (
-                <SectionContainer key={section._id}>
-                  <div className='icon'>
-                    <GiMuscleUp />
-                  </div>
-                  <div className='detailList'>
-                    <div className='input-group'>
-                      <div className='section-header'>
-                        <Input
-                          type='text'
-                          value={section.name}
-                          // onChange={(e) => handleSectionChange(sectionIndex, e)}
-                        />
-                        <ActionButton
-                          onClick={() => handleRemoveSection(sectionIndex)}
-                        >
-                          <MdDelete />
-                        </ActionButton>
-                      </div>
-                      <Label>Nome Sezione:</Label>
-                      <Input
-                        type='text'
-                        value={section.name}
-                        onChange={(e) => {
-                          const newSections = [...editedWorkout.sections];
-                          newSections[sectionIndex].name = e.target.value;
-                          setEditedWorkout({
-                            ...editedWorkout,
-                            sections: newSections,
-                          });
-                        }}
-                      />
-                    </div>
-                    {section.exercises.map((exercise, exerciseIndex) => (
-                      <div
-                        className='exercise'
-                        key={exercise._id}
-                      >
-                        <div className='input-group'>
-                          <Label>Nome Esercizio:</Label>
-                          <Input
-                            type='text'
-                            value={exercise.name}
-                            onChange={(e) =>
-                              handleExerciseChange(
-                                sectionIndex,
-                                exerciseIndex,
-                                e
-                              )
-                            }
-                          />
-                        </div>
-                        {exercise.timeBased
-                          ? exercise.exerciseSets.map((set, setIndex) => (
-                              <SetContainer key={setIndex}>
-                                <div className='input-group'>
-                                  <Label>Tempo (secondi):</Label>
-                                  <Input
-                                    type='number'
-                                    value={set.time}
-                                    onChange={(e) =>
-                                      handleSetChange(
-                                        sectionIndex,
-                                        exerciseIndex,
-                                        setIndex,
-                                        'time',
-                                        e
-                                      )
-                                    }
-                                  />
-                                </div>
-                                <div className='input-group'>
-                                  <Label>Riposo (secondi):</Label>
-                                  <Input
-                                    type='number'
-                                    value={set.rest}
-                                    onChange={(e) =>
-                                      handleSetChange(
-                                        sectionIndex,
-                                        exerciseIndex,
-                                        setIndex,
-                                        'rest',
-                                        e
-                                      )
-                                    }
-                                  />
-                                </div>
-                              </SetContainer>
-                            ))
-                          : exercise.exerciseSets.map((set, setIndex) => (
-                              <SetContainer key={setIndex}>
-                                <div className='input-group'>
-                                  <Label>Ripetizioni:</Label>
-                                  <Input
-                                    type='number'
-                                    value={set.reps}
-                                    onChange={(e) =>
-                                      handleSetChange(
-                                        sectionIndex,
-                                        exerciseIndex,
-                                        setIndex,
-                                        'reps',
-                                        e
-                                      )
-                                    }
-                                  />
-                                </div>
-                                <div className='input-group'>
-                                  <Label>Peso (kg):</Label>
-                                  <Input
-                                    type='number'
-                                    value={set.weight}
-                                    onChange={(e) =>
-                                      handleSetChange(
-                                        sectionIndex,
-                                        exerciseIndex,
-                                        setIndex,
-                                        'weight',
-                                        e
-                                      )
-                                    }
-                                  />
-                                </div>
-                                <div className='input-group'>
-                                  <Label>Riposo (secondi):</Label>
-                                  <Input
-                                    type='number'
-                                    value={set.rest}
-                                    onChange={(e) =>
-                                      handleSetChange(
-                                        sectionIndex,
-                                        exerciseIndex,
-                                        setIndex,
-                                        'rest',
-                                        e
-                                      )
-                                    }
-                                  />
-                                </div>
-                              </SetContainer>
-                            ))}
-                      </div>
-                    ))}
-                  </div>
-                </SectionContainer>
-              ))}
-              <ButtonGroup>
-                <Button onClick={handleUpdate}>
-                  <div className='text'>Salva</div>
-                </Button>
-                <Button onClick={() => setIsEditing(false)}>
-                  <div className='text'>Annulla</div>
-                </Button>
-              </ButtonGroup>
-            </div>
-          ) : (
-            <>
-              <div className='title'>dettagli</div>
-              <SectionContainer>
-                <div className='icon'>
-                  <LuTableOfContents />
-                </div>
-
-                <div className='detailList'>
-                  <div className='detail'>
-                    <div className='label'>Data:</div>
-                    <div className='text'>
-                      {new Date(wor.date).toLocaleDateString('it-IT')}
-                    </div>
-                  </div>
-                  <div className='detail'>
-                    <div className='label'>Inizio:</div>
-                    <div className='text'>
-                      {new Date(wor.start).toLocaleTimeString('it-IT', {
-                        hour: '2-digit',
-                        minute: '2-digit',
-                      })}
-                    </div>
-                  </div>
-                  <div className='detail'>
-                    <div className='label'>Note:</div>
-                    <div className='text'>{wor.notes}</div>
-                  </div>
-                  <div className='detail'>
-                    <div className='label'>Completato:</div>
-                    <div className='text'>
-                      {wor.completed ? <BiCheck /> : <>no</>}
-                    </div>
-                  </div>
-                </div>
-              </SectionContainer>
-              <div className='title'>sezioni</div>
-              {wor.sections.map((section) => (
-                <SectionContainer key={section._id}>
-                  <div className='icon'>
-                    <GiMuscleUp />
-                  </div>
-                  <div className='detailList'>
-                    <div className='sectionName'>{section.name}</div>
+                <AnimatePresence mode='wait'>
+                  {!expandedStates[`${wor._id}-${section._id}`] && (
+                    <motion.div
+                      className='exPreview'
+                      initial={{ opacity: 0 }}
+                      animate={{ opacity: 1 }}
+                      exit={{ opacity: 0 }}
+                    >
+                      {section.exercises.length} esercizi
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+                <ExerciseContainer
+                  className='exerciseContainer'
+                  isexpanded={expandedStates[`${wor._id}-${section._id}`]}
+                  key={section._id}
+                >
+                  <div className='utility'>
                     {section.exercises.map((exercise, i) => (
                       <div
                         className='exercise'
@@ -635,9 +283,10 @@ function WorkoutPreview({
                             {exercise.exerciseSets
                               .map((set, index) => `${set.reps} reps`)
                               .join(' / ')}{' '}
-                            {exercise.exerciseSets
-                              .map((set, index) => `${set.weight}kg`)
-                              .join(' / ')}{' '}
+                            {exercise.exerciseSets.weight > 0 &&
+                              exercise.exerciseSets
+                                .map((set, index) => `${set.weight}kg`)
+                                .join(' / ')}{' '}
                             <br />
                             Rest:{' '}
                             {exercise.exerciseSets
@@ -648,10 +297,10 @@ function WorkoutPreview({
                       </div>
                     ))}
                   </div>
-                </SectionContainer>
-              ))}
-            </>
-          )} */}
+                </ExerciseContainer>
+              </div>
+            </SectionContainer>
+          ))}
         </div>
       ))}
       {!workout && (
@@ -768,6 +417,18 @@ const Container = styled.div`
   align-items: center;
   gap: 20px;
   position: relative;
+
+  input {
+    all: unset;
+    font-weight: 100;
+    opacity: 60%;
+    font-size: 0.9em;
+    display: flex;
+    align-items: center;
+    height: 100%;
+    vertical-align: baseline;
+    line-height: 1em;
+  }
   button {
     .text {
       font-size: 1.3em;
@@ -779,6 +440,7 @@ const Container = styled.div`
     align-items: center;
     justify-content: center;
     gap: 15px;
+    width: 100%;
     .title {
       text-transform: uppercase;
       font-weight: 800;
@@ -812,8 +474,10 @@ const SectionContainer = styled.div`
   border-radius: 20px;
   padding: 20px;
   display: flex;
+
   gap: 20px;
   width: 100%;
+
   .icon {
     background-color: #d9d9d910;
     width: fit-content;
@@ -870,7 +534,30 @@ const SectionContainer = styled.div`
   }
   .sectionName {
     text-transform: capitalize;
+    height: 40px;
+    display: flex;
+    align-items: center;
   }
+`;
+const ExerciseContainer = styled.div`
+  display: grid;
+  grid-template-rows: ${(props) => (props.isexpanded ? '1fr' : '0fr')};
+  transition: grid-template-rows 500ms ease;
+
+  .utility {
+    overflow: hidden;
+    opacity: 0;
+  }
+
+  ${(props) =>
+    props.isexpanded &&
+    css`
+      .utility {
+        transition: opacity 500ms ease;
+        transition-delay: 500ms;
+        opacity: 1;
+      }
+    `};
 `;
 
 const RepeatContainer = styled.div`

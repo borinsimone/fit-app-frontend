@@ -6,6 +6,7 @@ import timeGridPlugin from '@fullcalendar/timegrid';
 import interactionPlugin from '@fullcalendar/interaction';
 import { useGlobalContext } from '../../context/GlobalContext';
 import itLocale from '@fullcalendar/core/locales/it';
+import { AnimatePresence } from 'framer-motion';
 function NewCalendar({
   dateSelected,
   setDateSelected,
@@ -100,6 +101,45 @@ function NewCalendar({
         // setPreviewExpanded(false);
       }}
     >
+      {/* <div className='calendarContainer'>
+        <AnimatePresence mode='wait'>
+          {calendarExpanded ? (
+            <FullCalendar
+              plugins={[dayGridPlugin, timeGridPlugin, interactionPlugin]}
+              initialView='dayGridMonth'
+              events={events}
+              locale={itLocale}
+              headerToolbar={{
+                left: 'title',
+                // center: 'prev,next',
+                // right: 'dayGridMonth,timeGridWeek',
+              }}
+              dateClick={(info) => {
+                console.log(info);
+                handleDayClick(info.date);
+              }}
+              eventClick={(info) =>
+                console.log('Evento cliccato:', info.event.extendedProps.date)
+              }
+              eventContent={(eventInfo) => (
+                <div className='calendarEvent'></div>
+              )}
+            />
+          ) : (
+            <div className='collapsedContainer'>
+              <div className='date'>
+                {new Date().toLocaleDateString('it-IT')}
+              </div>
+              <div className='name'>
+                {dateWorkout
+                  ? dateWorkout.map((workout) => workout.name).join(', ')
+                  : 'Nessun allenamento programmato'}
+              </div>
+            </div>
+          )}
+        </AnimatePresence>
+      </div> */}
+
       {calendarExpanded && (
         <div className='calendarContainer'>
           <FullCalendar
@@ -107,6 +147,11 @@ function NewCalendar({
             initialView='dayGridMonth'
             events={events}
             locale={itLocale}
+            headerToolbar={{
+              left: 'title',
+              // center: 'prev,next',
+              // right: 'dayGridMonth,timeGridWeek',
+            }}
             dateClick={(info) => {
               console.log(info);
               handleDayClick(info.date);
@@ -116,9 +161,6 @@ function NewCalendar({
             }
             eventContent={(eventInfo) => <div className='calendarEvent'></div>}
           />
-          <div className='workoutName'>
-            {dateWorkout ? dateWorkout.map((workout) => workout.name) : ''}
-          </div>
         </div>
       )}
       {!calendarExpanded && (
@@ -168,12 +210,7 @@ const Container = styled.div`
     display: flex;
     flex-direction: column;
     overflow: hidden;
-
-    /* Aggiungi altezza dinamica per il calendario */
     height: 100%; /* Questo farà sì che il calendario occupi tutta l'altezza disponibile del contenitore */
-
-    /* Impedire lo scroll */
-    overflow: hidden; /* Se non vuoi che ci sia lo scroll */
   }
 
   .fc {
