@@ -1,5 +1,5 @@
 import React from 'react';
-import { MdTune } from 'react-icons/md';
+import { MdAdd, MdTune } from 'react-icons/md';
 import styled from 'styled-components';
 import { useGlobalContext } from '../../../context/GlobalContext';
 import { PieChart, Pie, Cell } from 'recharts';
@@ -133,6 +133,7 @@ function TodayWidget() {
           alert('impostazioni per i widget verranno aggiunte presto!');
         }}
       />
+
       {totalWorkouts > 0 && (
         <ChartContainer
           onClick={() => {
@@ -188,6 +189,16 @@ function TodayWidget() {
           ? todayWorkout.name
           : 'Nessun allenamento programmato per oggi'}
       </div>
+      {!todayWorkout && (
+        <div
+          className='addWorkout'
+          onClick={() => {
+            alert('apri form per aggiungere allenamento in data di oggi');
+          }}
+        >
+          <MdAdd size={30} />
+        </div>
+      )}
     </Container>
   );
 }
@@ -211,6 +222,15 @@ const Container = styled.div`
   justify-content: center;
   gap: 5px;
   .todayDate {
+  }
+  .addWorkout {
+    background-color: #d9d9d910;
+    height: 50px;
+    width: 50px;
+    border-radius: 50%;
+    display: grid;
+    place-items: center;
+    margin: 0 auto;
   }
   .workoutName {
     font-size: 0.8em;
