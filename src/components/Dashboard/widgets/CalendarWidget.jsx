@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
 import FullCalendar from '@fullcalendar/react';
 import dayGridPlugin from '@fullcalendar/daygrid';
@@ -16,6 +16,15 @@ const CalendarWidget = () => {
       id: `${workout._id}`,
     })) || []
   );
+  useEffect(() => {
+    setEvents(
+      workouts?.map((workout) => ({
+        title: `${workout.name}`,
+        date: `${workout.date}`,
+        id: `${workout._id}`,
+      })) || []
+    );
+  }, [workouts]);
   return (
     <CalendarContainer onClick={() => console.log(events)}>
       <FullCalendar
