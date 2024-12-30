@@ -1,8 +1,20 @@
 import { motion } from 'framer-motion';
-import React from 'react';
+import React, { useRef } from 'react';
 import styled from 'styled-components';
+import { useEffect } from 'react';
 
 function Loading() {
+  const textRef = useRef(null);
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      if (textRef.current) {
+        textRef.current.style.opacity = 1;
+      }
+    }, 4000);
+
+    return () => clearTimeout(timer);
+  }, []);
   return (
     <Container
       as={motion.div}
@@ -82,6 +94,12 @@ function Loading() {
           <g></g>
         </g>
       </svg>
+      <div
+        className='text'
+        ref={textRef}
+      >
+        Il server fa un po cacare.. dai tempo
+      </div>
     </Container>
   );
 }
@@ -94,6 +112,11 @@ const Container = styled.div`
   width: 100vw;
   background-color: ${({ theme }) => theme.colors.background};
   display: flex;
+  flex-direction: column;
   justify-content: center;
   align-items: center;
+  .text {
+    opacity: 0;
+    transition: 300ms;
+  }
 `;
