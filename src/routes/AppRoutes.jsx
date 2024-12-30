@@ -7,6 +7,7 @@ import DashboardPage from '../pages/DashboardPage';
 import AgendaPage from '../pages/AgendaPage';
 import WorkoutAssistantPage from '../pages/WorkoutAssistantPage';
 import { AnimatePresence } from 'framer-motion';
+import UserPage from '../pages/UserPage';
 
 const AppRoutes = () => {
   const isAuthenticated = localStorage.getItem('token'); // Controlla se c'è un token
@@ -51,6 +52,10 @@ const AppRoutes = () => {
               <Navigate to='/login' />
             )
           }
+        />
+        <Route
+          path='/profile'
+          element={isAuthenticated ? <UserPage /> : <Navigate to='/login' />}
         />
       </Routes>
     </AnimatePresence>
