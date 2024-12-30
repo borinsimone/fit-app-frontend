@@ -63,6 +63,7 @@ export const deleteWorkout = async (id, token) => {
     } else {
       console.log('Workout deleted successfully');
     }
+    return response;
   } catch (error) {
     console.error('Error deleting workout:', error);
     throw error;
