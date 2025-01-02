@@ -272,7 +272,6 @@ function WorkoutForm({}) {
           required
         />
       </FormGroup>
-
       <FormGroup>
         <Label>Note Generali:</Label>
         <Input
@@ -298,19 +297,21 @@ function WorkoutForm({}) {
             <DeleteButton
               type='button'
               onClick={() => deleteSection(sectionIndex)}
+              className='delete-section'
             >
-              Elimina Sezione
+              <MdDelete />
             </DeleteButton>
           </FormGroup>
           {section.exercises.map((exercise, exerciseIndex) => (
             <ExerciseContainer key={exerciseIndex}>
-              <DeleteButton
-                type='button'
-                onClick={() => deleteExercise(sectionIndex, exerciseIndex)}
-              >
-                <MdDelete />
-              </DeleteButton>
               <div className='flex'>
+                <DeleteButton
+                  type='button'
+                  onClick={() => deleteExercise(sectionIndex, exerciseIndex)}
+                  className='delete-exercise'
+                >
+                  <MdDelete />
+                </DeleteButton>
                 <FormGroup>
                   <Label>Nome Esercizio:</Label>
                   <Input
@@ -338,7 +339,7 @@ function WorkoutForm({}) {
                   </datalist>
                 </FormGroup>
 
-                <FormGroup>
+                <FormGroup className='time-based'>
                   <Label>Time Based:</Label>
                   <Input
                     type='checkbox'
@@ -368,34 +369,69 @@ function WorkoutForm({}) {
               </FormGroup>
               {exercise.exerciseSets.map((set, setIndex) => (
                 <SetContainer key={setIndex}>
-                  <FormGroup>
-                    <Label>Reps:</Label>
-                    <Input
-                      type='number'
-                      value={set.reps}
-                      onChange={(e) =>
-                        handleSetChange(sectionIndex, exerciseIndex, setIndex, {
-                          ...set,
-                          reps: e.target.value,
-                        })
-                      }
-                      disabled={exercise.timeBased}
-                    />
-                  </FormGroup>
-                  <FormGroup>
-                    <Label>Weight:</Label>
-                    <Input
-                      type='number'
-                      value={set.weight}
-                      onChange={(e) =>
-                        handleSetChange(sectionIndex, exerciseIndex, setIndex, {
-                          ...set,
-                          weight: e.target.value,
-                        })
-                      }
-                      disabled={exercise.timeBased}
-                    />
-                  </FormGroup>
+                  {exercise.timeBased ? (
+                    <FormGroup>
+                      <Label>Time:</Label>
+                      <Input
+                        type='number'
+                        value={set.time}
+                        onChange={(e) =>
+                          handleSetChange(
+                            sectionIndex,
+                            exerciseIndex,
+                            setIndex,
+                            {
+                              ...set,
+                              time: e.target.value,
+                            }
+                          )
+                        }
+                        disabled={!exercise.timeBased}
+                      />
+                    </FormGroup>
+                  ) : (
+                    <>
+                      <FormGroup>
+                        <Label>Weight:</Label>
+                        <Input
+                          type='number'
+                          value={set.weight}
+                          onChange={(e) =>
+                            handleSetChange(
+                              sectionIndex,
+                              exerciseIndex,
+                              setIndex,
+                              {
+                                ...set,
+                                weight: e.target.value,
+                              }
+                            )
+                          }
+                          disabled={exercise.timeBased}
+                        />
+                      </FormGroup>
+                      <FormGroup>
+                        <Label>Reps:</Label>
+                        <Input
+                          type='number'
+                          value={set.reps}
+                          onChange={(e) =>
+                            handleSetChange(
+                              sectionIndex,
+                              exerciseIndex,
+                              setIndex,
+                              {
+                                ...set,
+                                reps: e.target.value,
+                              }
+                            )
+                          }
+                          disabled={exercise.timeBased}
+                        />
+                      </FormGroup>
+                    </>
+                  )}
+
                   <FormGroup>
                     <Label>Rest:</Label>
                     <Input
@@ -409,25 +445,12 @@ function WorkoutForm({}) {
                       }
                     />
                   </FormGroup>
-                  <FormGroup>
-                    <Label>Time:</Label>
-                    <Input
-                      type='number'
-                      value={set.time}
-                      onChange={(e) =>
-                        handleSetChange(sectionIndex, exerciseIndex, setIndex, {
-                          ...set,
-                          time: e.target.value,
-                        })
-                      }
-                      disabled={!exercise.timeBased}
-                    />
-                  </FormGroup>
                   <DeleteButton
                     type='button'
                     onClick={() =>
                       deleteSet(sectionIndex, exerciseIndex, setIndex)
                     }
+                    className='delete-set'
                   >
                     <MdDelete />
                   </DeleteButton>
@@ -455,7 +478,12 @@ function WorkoutForm({}) {
       >
         Aggiungi Sezione
       </Button>
-      <Button type='submit'>Salva Workout</Button>
+      <Button
+        type='submit'
+        className='save'
+      >
+        Salva Workout
+      </Button>
     </FormContainer>
   );
 }
@@ -465,6 +493,9 @@ export default WorkoutForm;
 const FormContainer = styled.form`
   display: flex;
   flex-direction: column;
+  justify-content: start;
+  align-items: center;
+  gap: 20px;
   padding: 20px;
   background-color: #333;
   border-radius: 8px;
@@ -477,13 +508,26 @@ const FormContainer = styled.form`
   height: 80vh;
   overflow: auto;
   z-index: 20;
-  .flex {
-    display: flex;
-    align-items: center;
+
+  .save {
+    /* position: fixed; */
+    bottom: 20px;
+    width: 95%;
   }
 `;
 
-const FormGroup = styled.div``;
+const FormGroup = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  width: 100%;
+  position: relative;
+  .delete-section {
+    position: absolute;
+    top: 0;
+    right: 0;
+  }
+`;
 
 const Label = styled.label`
   font-weight: bold;
@@ -499,13 +543,12 @@ const Input = styled.input`
 `;
 
 const Close = styled.div`
-  align-self: flex-end;
   cursor: pointer;
-  font-size: 24px;
-  color: #999;
-  &:hover {
-    color: #333;
-  }
+  font-size: 36px;
+  color: red;
+  position: absolute;
+  top: 5px;
+  right: 5px;
 `;
 
 const Button = styled.button`
@@ -514,11 +557,11 @@ const Button = styled.button`
   color: white;
   border: none;
   border-radius: 4px;
+  width: 100%;
   cursor: pointer;
   &:hover {
     background-color: #00a5a3;
   }
-  margin-top: 10px;
 `;
 
 const DeleteButton = styled.button`
@@ -537,11 +580,48 @@ const DeleteButton = styled.button`
   }
 `;
 
-const SectionContainer = styled.div``;
+const SectionContainer = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  width: 100%;
+`;
 
-const ExerciseContainer = styled.div``;
+const ExerciseContainer = styled.div`
+  display: flex;
+  flex-direction: column;
+
+  gap: 10px;
+  .flex {
+    display: flex;
+    position: relative;
+    justify-content: space-between;
+    .delete-exercise {
+      position: absolute;
+      right: 0;
+      top: 50%;
+      transform: translateY(-50%);
+      z-index: 2;
+    }
+    .time-based {
+      align-items: center;
+      input {
+        height: 20px;
+        width: 20px;
+      }
+    }
+  }
+`;
 
 const SetContainer = styled.div`
   display: flex;
   position: relative;
+  position: relative;
+  padding-right: 30px;
+  .delete-set {
+    position: absolute;
+    right: 0;
+    top: 50%;
+    transform: translateY(-50%);
+  }
 `;

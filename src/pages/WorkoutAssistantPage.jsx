@@ -263,7 +263,7 @@ const SectionContainer = styled.div`
 
   input {
     all: unset;
-    width: 20px;
+    width: 30px;
     text-align: center;
     &:focus {
       background-color: #d9d9d910;

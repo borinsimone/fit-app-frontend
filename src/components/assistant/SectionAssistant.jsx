@@ -1,8 +1,10 @@
 import React, { useState } from 'react';
-import { MdClose } from 'react-icons/md';
+import { MdAdd, MdClose, MdDelete } from 'react-icons/md';
 import styled from 'styled-components';
 import { useGlobalContext } from '../../context/GlobalContext';
-import TimerAssistant from './TimerAssistant';
+
+import Timer from './Timer';
+import { AnimatePresence } from 'framer-motion';
 
 function SectionAssistant({ currentSection, close }) {
   const { selectedWorkout, setSelectedWorkout } = useGlobalContext();
@@ -44,17 +46,48 @@ function SectionAssistant({ currentSection, close }) {
     });
   };
 
+  const [newExerciseName, setNewExerciseName] = useState('');
+
   return (
     <Container>
       <MdClose
         className='close'
         onClick={() => close()}
       />
+      <AnimatePresence mode='wait'>
+        {timer && (
+          <Timer
+            timer={timer}
+            restTime={timer}
+            clear={() => setTimer(null)}
+          />
+        )}
+      </AnimatePresence>
       <Content>
         <h1>{currentSection?.name}</h1>
         {currentSection?.exercises.map((exercise, exerciseIndex) => (
           <ExerciseContainer key={exercise._id}>
-            <h2>{exercise.name}</h2>
+            <div className='exHeader'>
+              <h2>{exercise.name}</h2>
+              <button
+                className='deleteBtn'
+                onClick={() => {
+                  const updatedSection = { ...currentSection };
+                  updatedSection.exercises.splice(exerciseIndex, 1);
+
+                  setSelectedWorkout((prevWorkout) => {
+                    const updatedWorkout = { ...prevWorkout };
+                    const sectionIndex = updatedWorkout.sections.findIndex(
+                      (sec) => sec._id === currentSection._id
+                    );
+                    updatedWorkout.sections[sectionIndex] = updatedSection;
+                    return updatedWorkout;
+                  });
+                }}
+              >
+                <MdDelete size={20} />
+              </button>
+            </div>
             <table>
               <thead>
                 <tr>
@@ -119,19 +152,100 @@ function SectionAssistant({ currentSection, close }) {
                         }
                       />
                     </td>
+                    <td>
+                      <button
+                        className='deleteBtn'
+                        onClick={() => {
+                          const updatedSection = { ...currentSection };
+                          updatedSection.exercises[
+                            exerciseIndex
+                          ].exerciseSets.splice(setIndex, 1);
+
+                          setSelectedWorkout((prevWorkout) => {
+                            const updatedWorkout = { ...prevWorkout };
+                            const sectionIndex =
+                              updatedWorkout.sections.findIndex(
+                                (sec) => sec._id === currentSection._id
+                              );
+                            updatedWorkout.sections[sectionIndex] =
+                              updatedSection;
+                            return updatedWorkout;
+                          });
+                        }}
+                      >
+                        <MdDelete size={20} />
+                      </button>
+                    </td>
                   </tr>
                 ))}
+                <tr>
+                  <td colSpan='5'>
+                    <button
+                      className='addBtn'
+                      onClick={() => {
+                        const updatedSection = { ...currentSection };
+                        const lastSet =
+                          exercise.exerciseSets[
+                            exercise.exerciseSets.length - 1
+                          ];
+                        const newSet = { ...lastSet, completed: false };
+                        updatedSection.exercises[
+                          exerciseIndex
+                        ].exerciseSets.push(newSet);
+
+                        setSelectedWorkout((prevWorkout) => {
+                          const updatedWorkout = { ...prevWorkout };
+                          const sectionIndex =
+                            updatedWorkout.sections.findIndex(
+                              (sec) => sec._id === currentSection._id
+                            );
+                          updatedWorkout.sections[sectionIndex] =
+                            updatedSection;
+                          return updatedWorkout;
+                        });
+                      }}
+                    >
+                      <MdAdd size={20} />
+                    </button>
+                  </td>
+                </tr>
               </tbody>
             </table>
           </ExerciseContainer>
         ))}
+        <NewExerciseContainer>
+          <input
+            type='text'
+            placeholder='New Exercise Name'
+            value={newExerciseName}
+            onChange={(e) => setNewExerciseName(e.target.value)}
+          />
+          <button
+            onClick={() => {
+              const updatedSection = { ...currentSection };
+              const newExercise = {
+                _id: Date.now().toString(),
+                name: newExerciseName,
+                exerciseSets: [],
+              };
+              updatedSection.exercises.push(newExercise);
+
+              setSelectedWorkout((prevWorkout) => {
+                const updatedWorkout = { ...prevWorkout };
+                const sectionIndex = updatedWorkout.sections.findIndex(
+                  (sec) => sec._id === currentSection._id
+                );
+                updatedWorkout.sections[sectionIndex] = updatedSection;
+                return updatedWorkout;
+              });
+
+              setNewExerciseName('');
+            }}
+          >
+            Add Exercise
+          </button>
+        </NewExerciseContainer>
       </Content>
-      {timer && (
-        <TimerAssistant
-          restTime={timer}
-          clear={() => setTimer(null)}
-        />
-      )}
     </Container>
   );
 }
@@ -150,6 +264,7 @@ const Container = styled.div`
   align-items: center;
   justify-content: start;
   padding: 50px 20px;
+  /* padding-top: 0; */
 
   /* overflow-y: auto; */
   z-index: 10;
@@ -176,19 +291,58 @@ const Content = styled.div`
   align-items: center;
   gap: 20px;
   overflow: scroll;
+  scroll-snap-type: y mandatory; /* Snap orizzontale obbligatorio */
+
   h1 {
     font-size: 1.5em;
   }
 `;
 
 const ExerciseContainer = styled.div`
+  scroll-snap-align: top; /* Gli elementi si allineano al centro */
+
   width: 100%;
   h2 {
     font-size: 1.2em;
   }
+  .exHeader {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    .deleteBtn {
+      all: unset;
+      background-color: red;
+      border-radius: 50%;
+      padding: 5px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+  }
   table {
     width: 100%;
     border-collapse: collapse;
+    button {
+      all: unset;
+    }
+    .addBtn {
+      background-color: ${({ theme }) => theme.colors.light};
+      border-radius: 50%;
+      padding: 5px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto;
+    }
+    .deleteBtn {
+      background-color: red;
+      border-radius: 50%;
+      padding: 5px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto;
+    }
     th,
     td {
       padding: 10px 0;
@@ -227,6 +381,33 @@ const ExerciseContainer = styled.div`
       display: block;
       text-align: center;
       line-height: 20px;
+    }
+  }
+`;
+const NewExerciseContainer = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: 20px;
+
+  input {
+    padding: 10px;
+    border: 1px solid ${({ theme }) => theme.colors.border};
+    border-radius: 5px;
+    width: 200px;
+  }
+
+  button {
+    padding: 10px 20px;
+    background-color: ${({ theme }) => theme.colors.primary};
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+
+    &:hover {
+      background-color: ${({ theme }) => theme.colors.primaryDark};
     }
   }
 `;
