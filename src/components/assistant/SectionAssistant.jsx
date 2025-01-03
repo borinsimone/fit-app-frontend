@@ -4,7 +4,7 @@ import styled from 'styled-components';
 import { useGlobalContext } from '../../context/GlobalContext';
 
 import Timer from './Timer';
-import { AnimatePresence } from 'framer-motion';
+import { AnimatePresence, motion, useIsPresent } from 'framer-motion';
 
 function SectionAssistant({ currentSection, close }) {
   const { selectedWorkout, setSelectedWorkout } = useGlobalContext();
@@ -66,7 +66,7 @@ function SectionAssistant({ currentSection, close }) {
       <Content>
         <h1>{currentSection?.name}</h1>
         {currentSection?.exercises.map((exercise, exerciseIndex) => (
-          <ExerciseContainer key={exercise._id}>
+          <ExerciseCon key={exercise._id}>
             <div className='exHeader'>
               <h2>{exercise.name}</h2>
               <button
@@ -100,7 +100,7 @@ function SectionAssistant({ currentSection, close }) {
               </thead>
               <tbody>
                 {exercise.exerciseSets.map((set, setIndex) => (
-                  <tr key={setIndex}>
+                  <Item key={setIndex}>
                     <td>{setIndex + 1}</td>
                     <td>
                       <input
@@ -176,7 +176,7 @@ function SectionAssistant({ currentSection, close }) {
                         <MdDelete size={20} />
                       </button>
                     </td>
-                  </tr>
+                  </Item>
                 ))}
                 <tr>
                   <td colSpan='5'>
@@ -211,7 +211,7 @@ function SectionAssistant({ currentSection, close }) {
                 </tr>
               </tbody>
             </table>
-          </ExerciseContainer>
+          </ExerciseCon>
         ))}
         <NewExerciseContainer>
           <input
@@ -357,6 +357,8 @@ const ExerciseContainer = styled.div`
         width: 30px;
       }
     }
+    tr {
+    }
     input[type='checkbox'] {
       appearance: none; /* Remove native checkbox styling */
       -webkit-appearance: none; /* For Safari */
@@ -411,3 +413,46 @@ const NewExerciseContainer = styled.div`
     }
   }
 `;
+const Item = ({ children, key }) => {
+  const isPresent = useIsPresent();
+  const animation = {
+    style: {
+      position: isPresent ? 'static' : 'absolute',
+    },
+    initial: { scale: 0, opacity: 0 },
+    animate: { scale: 1, opacity: 1 },
+    exit: { scale: 0, opacity: 0 },
+    transition: { type: 'spring', stiffness: 300, damping: 20 },
+  };
+  return (
+    <motion.tr
+      {...animation}
+      key={key}
+      layout
+    >
+      {children}
+    </motion.tr>
+  );
+};
+const ExerciseCon = ({ children, key }) => {
+  const isPresent = useIsPresent();
+  const animation = {
+    style: {
+      position: isPresent ? 'static' : 'absolute',
+    },
+    initial: { scale: 0, opacity: 0 },
+    animate: { scale: 1, opacity: 1 },
+    exit: { scale: 0, opacity: 0 },
+    transition: { type: 'spring', stiffness: 300, damping: 20 },
+  };
+  return (
+    <ExerciseContainer
+      as={motion.div}
+      {...animation}
+      key={key}
+      layout
+    >
+      {children}
+    </ExerciseContainer>
+  );
+};
