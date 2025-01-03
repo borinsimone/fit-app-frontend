@@ -12,10 +12,10 @@ function NewCalendar({
   setDateSelected,
   dateWorkout,
   setDateWorkout,
-  calendarExpanded,
-  setCalendarExpanded,
+
+  workouts,
 }) {
-  const { workouts } = useGlobalContext();
+  // const { workouts } = useGlobalContext();
   const [events, setEvents] = useState(
     workouts?.map((workout) => ({
       title: `${workout.name}`,
@@ -29,9 +29,20 @@ function NewCalendar({
 
   useEffect(() => {
     if (dateSelected) {
+      console.log(dateSelected);
+
       highlightSelectCell(dateSelected);
+      const workoutForDay = getWorkoutForDay(dateSelected);
+
+      if (workoutForDay.length === 0) {
+        setDateWorkout(null);
+      } else {
+        setDateWorkout(workoutForDay);
+      }
     }
-  }, []);
+  }, [workouts]);
+
+  // Funzione che aggiorna i workout nel calendario (ancora non in tempo reale)
   useEffect(() => {
     setEvents(
       workouts?.map((workout) => ({
@@ -43,8 +54,8 @@ function NewCalendar({
         id: `${workout._id}`,
       })) || []
     );
-    console.log('eventi aggiornati');
   }, [workouts]);
+  // Funzione che evidenzia la cella selezionata
   const highlightSelectCell = (date) => {
     console.log(date);
 
@@ -66,10 +77,13 @@ function NewCalendar({
       setDateSelected(date);
     }
   };
-
+  // Funzione che restituisce gli allenamenti per il giorno selezionato
   const getWorkoutForDay = (date) => {
+    console.log('data selezionata:', date);
+
     // Converte la data in formato "YYYY-MM-DD" nel fuso orario locale
     const formattedDate = date.toLocaleDateString('en-CA'); // 'en-CA' è un formato che restituisce "YYYY-MM-DD"
+    console.log('data formattata:', formattedDate);
 
     console.log(formattedDate); // Visualizza la data senza l'orario nel fuso orario locale
 
@@ -81,8 +95,10 @@ function NewCalendar({
 
     return workoutForToday;
   };
+  // Funzione che gestisce il click su una cella
   const handleDayClick = (date) => {
     console.log(date);
+    console.log('chiamata funzione dayclick');
 
     highlightSelectCell(date);
     const workoutForDay = getWorkoutForDay(date);
@@ -94,85 +110,28 @@ function NewCalendar({
     }
   };
   return (
-    <Container
-      isexpanded={calendarExpanded}
-      onClick={() => {
-        setCalendarExpanded(true);
-        // setPreviewExpanded(false);
-      }}
-    >
-      {/* <div className='calendarContainer'>
-        <AnimatePresence mode='wait'>
-          {calendarExpanded ? (
-            <FullCalendar
-              plugins={[dayGridPlugin, timeGridPlugin, interactionPlugin]}
-              initialView='dayGridMonth'
-              events={events}
-              locale={itLocale}
-              headerToolbar={{
-                left: 'title',
-                // center: 'prev,next',
-                // right: 'dayGridMonth,timeGridWeek',
-              }}
-              dateClick={(info) => {
-                console.log(info);
-                handleDayClick(info.date);
-              }}
-              eventClick={(info) =>
-                console.log('Evento cliccato:', info.event.extendedProps.date)
-              }
-              eventContent={(eventInfo) => (
-                <div className='calendarEvent'></div>
-              )}
-            />
-          ) : (
-            <div className='collapsedContainer'>
-              <div className='date'>
-                {new Date().toLocaleDateString('it-IT')}
-              </div>
-              <div className='name'>
-                {dateWorkout
-                  ? dateWorkout.map((workout) => workout.name).join(', ')
-                  : 'Nessun allenamento programmato'}
-              </div>
-            </div>
-          )}
-        </AnimatePresence>
-      </div> */}
-
-      {calendarExpanded && (
-        <div className='calendarContainer'>
-          <FullCalendar
-            plugins={[dayGridPlugin, timeGridPlugin, interactionPlugin]}
-            initialView='dayGridMonth'
-            events={events}
-            locale={itLocale}
-            headerToolbar={{
-              left: 'title',
-              // center: 'prev,next',
-              // right: 'dayGridMonth,timeGridWeek',
-            }}
-            dateClick={(info) => {
-              console.log(info);
-              handleDayClick(info.date);
-            }}
-            eventClick={(info) =>
-              console.log('Evento cliccato:', info.event.extendedProps.date)
-            }
-            eventContent={(eventInfo) => <div className='calendarEvent'></div>}
-          />
-        </div>
-      )}
-      {!calendarExpanded && (
-        <div className='collapsedContainer'>
-          <div className='date'>{new Date().toLocaleDateString('it-IT')}</div>
-          <div className='name'>
-            {dateWorkout
-              ? dateWorkout.map((workout) => workout.name).join(', ')
-              : 'Nessun allenamento programmato'}
-          </div>
-        </div>
-      )}
+    <Container isexpanded={true}>
+      <div className='calendarContainer'>
+        <FullCalendar
+          plugins={[dayGridPlugin, timeGridPlugin, interactionPlugin]}
+          initialView='dayGridMonth'
+          events={events}
+          locale={itLocale}
+          headerToolbar={{
+            left: 'title',
+            // center: 'prev,next',
+            // right: 'dayGridMonth,timeGridWeek',
+          }}
+          dateClick={(info) => {
+            console.log(info);
+            handleDayClick(info.date);
+          }}
+          eventClick={(info) =>
+            console.log('Evento cliccato:', info.event.extendedProps.date)
+          }
+          eventContent={(eventInfo) => <div className='calendarEvent'></div>}
+        />
+      </div>
     </Container>
   );
 }

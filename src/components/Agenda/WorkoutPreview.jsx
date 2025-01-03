@@ -18,9 +18,8 @@ import { AnimatePresence, motion } from 'framer-motion';
 function WorkoutPreview({
   workout,
   date,
-  setCalendarExpanded,
-  previewExpanded,
-  setPreviewExpanded,
+
+  onWorkoutDelete,
 }) {
   const {
     workouts,
@@ -32,22 +31,29 @@ function WorkoutPreview({
   } = useGlobalContext();
   const navigate = useNavigate();
 
-  const deleteItem = async (id) => {
-    try {
-      const token = localStorage.getItem('token');
-      const response = await deleteWorkout(id, token);
-      console.log(response.status);
-      if (response.status === 200) {
-        const updatedWorkouts = await getWorkouts();
-        setWorkouts(updatedWorkouts);
-      } else {
-        alert('problema con l eliminazione del workout', id);
-      }
-    } catch (error) {
-      console.error('Error deleting workout:', error);
+  // const deleteItem = async (id) => {
+  //   try {
+  //     const token = localStorage.getItem('token');
+  //     const response = await deleteWorkout(id, token);
+  //     console.log(response.status);
+  //     if (response.status === 200) {
+  //       const updatedWorkouts = await getWorkouts();
+  //       setWorkouts(updatedWorkouts);
+  //     } else {
+  //       alert('problema con l eliminazione del workout', id);
+  //     }
+  //   } catch (error) {
+  //     console.error('Error deleting workout:', error);
+  //   }
+  // };
+  //repeat workout
+
+  const handleDeleteClick = (workoutId) => {
+    if (window.confirm('Sei sicuro di voler eliminare questo allenamento?')) {
+      onWorkoutDelete(workoutId);
     }
   };
-  //repeat workout
+
   const [selectWorkout, setSelectWorkout] = useState(false);
   const handleAddWorkout = async (workout) => {
     const newDate = new Date(date);
@@ -80,27 +86,7 @@ function WorkoutPreview({
     setShowWorkout(false);
     setWorkoutToShow(null);
   }, [date]);
-  const scrollableRef = useRef(null);
-  // useEffect(() => {
-  //   const handleScroll = () => {
-  //     const { scrollTop } = scrollableRef.current;
 
-  //     if (scrollTop <= 0) {
-  //       console.log('top');
-  //       setCalendarExpanded(true);
-  //     } else {
-  //       console.log('down');
-  //       setCalendarExpanded(false);
-  //     }
-  //   };
-
-  //   const scrollableElement = scrollableRef.current;
-  //   scrollableElement.addEventListener('scroll', handleScroll);
-
-  //   return () => {
-  //     scrollableElement.removeEventListener('scroll', handleScroll);
-  //   };
-  // }, []);
   const [editedWorkout, setEditedWorkout] = useState(null);
   const handleInputChange = (
     sectionIndex,
@@ -146,20 +132,26 @@ function WorkoutPreview({
   };
 
   return (
-    <Container ref={scrollableRef}>
+    <Container>
       {workout?.map((wor) => (
         <div
           className='workoutContainer'
           key={wor._id}
-          onClick={() => {
-            setCalendarExpanded(false);
-            setPreviewExpanded(true);
-          }}
+          onClick={() => {}}
         >
           {wor.completed ? (
-            <Button>
-              <div className='text'>Modifica allenamento</div>
-            </Button>
+            <div>
+              <Button>
+                <div className='text'>Modifica allenamento</div>
+              </Button>
+              <MdDelete
+                style={{ position: 'absolute', right: '10px' }}
+                // onClick={() => deleteItem(wor._id)}
+                onClick={() => {
+                  handleDeleteClick(wor._id);
+                }}
+              />
+            </div>
           ) : (
             <div
               style={{
@@ -181,7 +173,8 @@ function WorkoutPreview({
               </Button>
               <MdDelete
                 style={{ position: 'absolute', right: '10px' }}
-                onClick={() => deleteItem(wor._id)}
+                // onClick={() => deleteItem(wor._id)}
+                onClick={() => handleDeleteClick(wor._id)}
               />
             </div>
           )}
@@ -314,6 +307,7 @@ function WorkoutPreview({
           >
             <div className='text'>Aggiungi workout</div>
           </Button>
+
           <Button
             onClick={() => {
               setSelectWorkout(true);

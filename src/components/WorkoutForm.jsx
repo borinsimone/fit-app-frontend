@@ -128,22 +128,28 @@ function WorkoutForm({}) {
       ].exerciseSets.filter((_, index) => index !== setIndex);
     setSections(updatedSections);
   };
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    const workout = {
-      name: workoutName,
-      date: workoutDate,
-      completed,
-      feedback: {
-        feeling,
-        notes: feedbackNotes,
-      },
-      notes: generalNotes,
-      sections,
-    };
-    console.log(workout);
-    addWorkouts(workout);
+    try {
+      setIsSubmitting(true);
+      const workoutData = {
+        name: workoutName,
+        date: workoutDate,
+        completed,
+
+        notes: generalNotes,
+        sections,
+      };
+
+      await addWorkouts(workoutData);
+      setWorkoutFormOpen(false);
+    } catch (error) {
+      console.error('Error saving workout:', error);
+    } finally {
+      setIsSubmitting(false);
+    }
   };
   const exercises = {
     riscaldamento: [
@@ -245,7 +251,7 @@ function WorkoutForm({}) {
   return (
     <FormContainer
       onSubmit={handleSubmit}
-      as={motion.div}
+      as={motion.form}
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
@@ -287,6 +293,7 @@ function WorkoutForm({}) {
             <Input
               type='text'
               value={section.name}
+              required
               onChange={(e) =>
                 handleSectionChange(sectionIndex, {
                   ...section,
@@ -315,6 +322,7 @@ function WorkoutForm({}) {
                 <FormGroup>
                   <Label>Nome Esercizio:</Label>
                   <Input
+                    required
                     type='text'
                     list={`exercise-options-${sectionIndex}-${exerciseIndex}`}
                     value={exercise.name}
@@ -481,8 +489,9 @@ function WorkoutForm({}) {
       <Button
         type='submit'
         className='save'
+        disabled={isSubmitting}
       >
-        Salva Workout
+        {isSubmitting ? 'Salvando...' : 'Salva Workout'}
       </Button>
     </FormContainer>
   );
@@ -497,6 +506,7 @@ const FormContainer = styled.form`
   align-items: center;
   gap: 20px;
   padding: 20px;
+  padding-top: 50px;
   background-color: #333;
   border-radius: 8px;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
@@ -510,8 +520,6 @@ const FormContainer = styled.form`
   z-index: 20;
 
   .save {
-    /* position: fixed; */
-    bottom: 20px;
     width: 95%;
   }
 `;
@@ -561,6 +569,10 @@ const Button = styled.button`
   cursor: pointer;
   &:hover {
     background-color: #00a5a3;
+  }
+  &:disabled {
+    opacity: 0.7;
+    cursor: not-allowed;
   }
 `;
 

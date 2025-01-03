@@ -27,7 +27,6 @@ export const addWorkouts = async (workoutData) => {
     console.log('Preparing to send workout data:', workoutData); // Debug log
 
     const token = localStorage.getItem('token'); // Get the token from local storage
-    console.log('Token retrieved from localStorage:', token); // Debug log
 
     const response = await axios.post(`${API_URL}/workouts`, workoutData, {
       headers: {
